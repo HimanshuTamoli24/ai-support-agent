@@ -89,9 +89,152 @@ model Verification {
   @@map("verification")
 }
 
-
-model test {
-  id String @id @default(cuid())
-  name String @db.Text
-  age  Int @default(10)
+enum MessageRole {
+  CUSTOMER
+  BRAND
 }
+
+model Brand {
+  id            String         @id @default(cuid())
+  name          String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  customers     Customer[]
+  conversations Conversation[]
+  intents       Intent[]
+
+  @@map("brand")
+}
+
+model Customer {
+  id            String         @id @default(cuid())
+  brandId       String
+  brand         Brand          @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  twitterId     String?
+  username      String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  conversations Conversation[]
+
+  @@index([brandId])
+  @@index([twitterId])
+  @@map("customer")
+}
+
+model Conversation {
+  id         String     @id @default(cuid())
+  brandId    String
+  brand      Brand      @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  customerId String?
+  customer   Customer?  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  twitterId  String?    @unique
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  messages   Message[]
+  agentRuns  AgentRun[]
+
+  @@index([brandId])
+  @@index([customerId])
+  @@map("conversation")
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  twitterId      String?      @unique
+  authorId       String?
+  username       String?
+  text           String       @db.Text
+  role           MessageRole
+  createdAt      DateTime     @default(now())
+  evidence       Evidence[]
+
+  @@index([conversationId])
+  @@index([authorId])
+  @@map("message")
+}
+
+model Intent {
+  id                 String              @id @default(cuid())
+  brandId            String
+  brand              Brand               @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  name               String
+  description        String?             @db.Text
+  createdAt          DateTime            @default(now())
+  agentRuns          AgentRun[]
+  evaluationExamples EvaluationExample[]
+
+  @@unique([brandId, name])
+  @@index([brandId])
+  @@map("intent")
+}
+
+model EvaluationSet {
+  id                 String              @id @default(cuid())
+  name               String
+  version            String
+  description        String?             @db.Text
+  createdAt          DateTime            @default(now())
+  evaluationExamples EvaluationExample[]
+
+  @@map("evaluation_set")
+}
+
+model EvaluationExample {
+  id                 String        @id @default(cuid())
+  evaluationSetId    String
+  evaluationSet      EvaluationSet @relation(fields: [evaluationSetId], references: [id], onDelete: Cascade)
+  intentId           String?
+  intent             Intent?       @relation(fields: [intentId], references: [id], onDelete: SetNull)
+  text               String        @db.Text
+  expectedEscalation Boolean       @default(false)
+  expectedReply      String?       @db.Text
+  notes              String?       @db.Text
+  createdAt          DateTime      @default(now())
+  agentRuns          AgentRun[]
+
+  @@index([evaluationSetId])
+  @@index([intentId])
+  @@map("evaluation_example")
+}
+
+model AgentRun {
+  id                  String             @id @default(cuid())
+  conversationId      String?
+  conversation        Conversation?      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  evaluationExampleId String?
+  evaluationExample   EvaluationExample? @relation(fields: [evaluationExampleId], references: [id], onDelete: SetNull)
+  predictedIntentId   String?
+  predictedIntent     Intent?            @relation(fields: [predictedIntentId], references: [id], onDelete: SetNull)
+  inputText           String             @db.Text
+  draftReply          String?            @db.Text
+  shouldEscalate      Boolean            @default(false)
+  escalationReason    String?            @db.Text
+  model               String?
+  latencyMs           Int?
+  createdAt           DateTime           @default(now())
+  evidence            Evidence[]
+
+  @@index([conversationId])
+  @@index([evaluationExampleId])
+  @@index([predictedIntentId])
+  @@map("agent_run")
+}
+
+model Evidence {
+  id             String   @id @default(cuid())
+  agentRunId     String
+  agentRun       AgentRun @relation(fields: [agentRunId], references: [id], onDelete: Cascade)
+  messageId      String
+  message        Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  relevanceScore Float?
+  reason         String?  @db.Text
+
+  @@index([agentRunId])
+  @@index([messageId])
+  @@map("evidence")
+}
+
+
+

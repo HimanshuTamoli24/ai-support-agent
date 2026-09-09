@@ -175,10 +175,89 @@ exports.Prisma.VerificationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.TestScalarFieldEnum = {
+exports.Prisma.BrandScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  age: 'age'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CustomerScalarFieldEnum = {
+  id: 'id',
+  brandId: 'brandId',
+  twitterId: 'twitterId',
+  username: 'username',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ConversationScalarFieldEnum = {
+  id: 'id',
+  brandId: 'brandId',
+  customerId: 'customerId',
+  twitterId: 'twitterId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MessageScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  twitterId: 'twitterId',
+  authorId: 'authorId',
+  username: 'username',
+  text: 'text',
+  role: 'role',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.IntentScalarFieldEnum = {
+  id: 'id',
+  brandId: 'brandId',
+  name: 'name',
+  description: 'description',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.EvaluationSetScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  version: 'version',
+  description: 'description',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.EvaluationExampleScalarFieldEnum = {
+  id: 'id',
+  evaluationSetId: 'evaluationSetId',
+  intentId: 'intentId',
+  text: 'text',
+  expectedEscalation: 'expectedEscalation',
+  expectedReply: 'expectedReply',
+  notes: 'notes',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AgentRunScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  evaluationExampleId: 'evaluationExampleId',
+  predictedIntentId: 'predictedIntentId',
+  inputText: 'inputText',
+  draftReply: 'draftReply',
+  shouldEscalate: 'shouldEscalate',
+  escalationReason: 'escalationReason',
+  model: 'model',
+  latencyMs: 'latencyMs',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.EvidenceScalarFieldEnum = {
+  id: 'id',
+  agentRunId: 'agentRunId',
+  messageId: 'messageId',
+  relevanceScore: 'relevanceScore',
+  reason: 'reason'
 };
 
 exports.Prisma.SortOrder = {
@@ -195,7 +274,10 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
+exports.MessageRole = exports.$Enums.MessageRole = {
+  CUSTOMER: 'CUSTOMER',
+  BRAND: 'BRAND'
+};
 
 exports.Prisma.ModelName = {
   Post: 'Post',
@@ -203,7 +285,15 @@ exports.Prisma.ModelName = {
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification',
-  test: 'test'
+  Brand: 'Brand',
+  Customer: 'Customer',
+  Conversation: 'Conversation',
+  Message: 'Message',
+  Intent: 'Intent',
+  EvaluationSet: 'EvaluationSet',
+  EvaluationExample: 'EvaluationExample',
+  AgentRun: 'AgentRun',
+  Evidence: 'Evidence'
 };
 
 /**

@@ -147,10 +147,89 @@ exports.Prisma.VerificationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.TestScalarFieldEnum = {
+exports.Prisma.BrandScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  age: 'age'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CustomerScalarFieldEnum = {
+  id: 'id',
+  brandId: 'brandId',
+  twitterId: 'twitterId',
+  username: 'username',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ConversationScalarFieldEnum = {
+  id: 'id',
+  brandId: 'brandId',
+  customerId: 'customerId',
+  twitterId: 'twitterId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MessageScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  twitterId: 'twitterId',
+  authorId: 'authorId',
+  username: 'username',
+  text: 'text',
+  role: 'role',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.IntentScalarFieldEnum = {
+  id: 'id',
+  brandId: 'brandId',
+  name: 'name',
+  description: 'description',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.EvaluationSetScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  version: 'version',
+  description: 'description',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.EvaluationExampleScalarFieldEnum = {
+  id: 'id',
+  evaluationSetId: 'evaluationSetId',
+  intentId: 'intentId',
+  text: 'text',
+  expectedEscalation: 'expectedEscalation',
+  expectedReply: 'expectedReply',
+  notes: 'notes',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AgentRunScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  evaluationExampleId: 'evaluationExampleId',
+  predictedIntentId: 'predictedIntentId',
+  inputText: 'inputText',
+  draftReply: 'draftReply',
+  shouldEscalate: 'shouldEscalate',
+  escalationReason: 'escalationReason',
+  model: 'model',
+  latencyMs: 'latencyMs',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.EvidenceScalarFieldEnum = {
+  id: 'id',
+  agentRunId: 'agentRunId',
+  messageId: 'messageId',
+  relevanceScore: 'relevanceScore',
+  reason: 'reason'
 };
 
 exports.Prisma.SortOrder = {
@@ -167,7 +246,10 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
+exports.MessageRole = exports.$Enums.MessageRole = {
+  CUSTOMER: 'CUSTOMER',
+  BRAND: 'BRAND'
+};
 
 exports.Prisma.ModelName = {
   Post: 'Post',
@@ -175,7 +257,15 @@ exports.Prisma.ModelName = {
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification',
-  test: 'test'
+  Brand: 'Brand',
+  Customer: 'Customer',
+  Conversation: 'Conversation',
+  Message: 'Message',
+  Intent: 'Intent',
+  EvaluationSet: 'EvaluationSet',
+  EvaluationExample: 'EvaluationExample',
+  AgentRun: 'AgentRun',
+  Evidence: 'Evidence'
 };
 /**
  * Create the Client
@@ -225,13 +315,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// Prisma schema for Better Auth\n// learn more: https://better-auth.com/docs/concepts/database\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\n// NOTE: When using mysql or sqlserver, uncomment the //@db.Text annotations in model Account below\n// Further reading:\n// https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"DATABASE_URL\")\n  directUrl = env(\"DATABASE_URL_UNPOOLED\")\n}\n\nmodel Post {\n  id        String   @id @default(cuid())\n  name      String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  createdBy   User   @relation(fields: [createdById], references: [id])\n  createdById String\n\n  @@index([name])\n}\n\nmodel User {\n  id            String    @id\n  name          String //@db.Text\n  email         String\n  emailVerified Boolean   @default(false)\n  image         String? //@db.Text\n  createdAt     DateTime  @default(now())\n  updatedAt     DateTime  @default(now()) @updatedAt\n  sessions      Session[]\n  accounts      Account[]\n  posts         Post[]\n\n  @@unique([email])\n  @@map(\"user\")\n}\n\nmodel Session {\n  id        String   @id\n  expiresAt DateTime\n  token     String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  ipAddress String? //@db.Text\n  userAgent String? //@db.Text\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([token])\n  @@map(\"session\")\n}\n\nmodel Account {\n  id                    String    @id\n  accountId             String //@db.Text\n  providerId            String //@db.Text\n  userId                String\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  accessToken           String? //@db.Text\n  refreshToken          String? //@db.Text\n  idToken               String? //@db.Text\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String? //@db.Text\n  password              String? //@db.Text\n  createdAt             DateTime  @default(now())\n  updatedAt             DateTime  @updatedAt\n\n  @@map(\"account\")\n}\n\nmodel Verification {\n  id         String   @id\n  identifier String //@db.Text\n  value      String //@db.Text\n  expiresAt  DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @default(now()) @updatedAt\n\n  @@map(\"verification\")\n}\n\nmodel test {\n  id   String @id @default(cuid())\n  name String @db.Text\n  age  Int    @default(10)\n}\n",
-  "inlineSchemaHash": "61ffc9c5ee2fb16c764a582df7e28082879bf4264ff10541456bc4c8b4c73a17",
+  "inlineSchema": "// Prisma schema for Better Auth\n// learn more: https://better-auth.com/docs/concepts/database\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\n// NOTE: When using mysql or sqlserver, uncomment the //@db.Text annotations in model Account below\n// Further reading:\n// https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"DATABASE_URL\")\n  directUrl = env(\"DATABASE_URL_UNPOOLED\")\n}\n\nmodel Post {\n  id        String   @id @default(cuid())\n  name      String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  createdBy   User   @relation(fields: [createdById], references: [id])\n  createdById String\n\n  @@index([name])\n}\n\nmodel User {\n  id            String    @id\n  name          String //@db.Text\n  email         String\n  emailVerified Boolean   @default(false)\n  image         String? //@db.Text\n  createdAt     DateTime  @default(now())\n  updatedAt     DateTime  @default(now()) @updatedAt\n  sessions      Session[]\n  accounts      Account[]\n  posts         Post[]\n\n  @@unique([email])\n  @@map(\"user\")\n}\n\nmodel Session {\n  id        String   @id\n  expiresAt DateTime\n  token     String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  ipAddress String? //@db.Text\n  userAgent String? //@db.Text\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([token])\n  @@map(\"session\")\n}\n\nmodel Account {\n  id                    String    @id\n  accountId             String //@db.Text\n  providerId            String //@db.Text\n  userId                String\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  accessToken           String? //@db.Text\n  refreshToken          String? //@db.Text\n  idToken               String? //@db.Text\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String? //@db.Text\n  password              String? //@db.Text\n  createdAt             DateTime  @default(now())\n  updatedAt             DateTime  @updatedAt\n\n  @@map(\"account\")\n}\n\nmodel Verification {\n  id         String   @id\n  identifier String //@db.Text\n  value      String //@db.Text\n  expiresAt  DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @default(now()) @updatedAt\n\n  @@map(\"verification\")\n}\n\nenum MessageRole {\n  CUSTOMER\n  BRAND\n}\n\nmodel Brand {\n  id            String         @id @default(cuid())\n  name          String\n  createdAt     DateTime       @default(now())\n  updatedAt     DateTime       @updatedAt\n  customers     Customer[]\n  conversations Conversation[]\n  intents       Intent[]\n\n  @@map(\"brand\")\n}\n\nmodel Customer {\n  id            String         @id @default(cuid())\n  brandId       String\n  brand         Brand          @relation(fields: [brandId], references: [id], onDelete: Cascade)\n  twitterId     String?\n  username      String?\n  createdAt     DateTime       @default(now())\n  updatedAt     DateTime       @updatedAt\n  conversations Conversation[]\n\n  @@index([brandId])\n  @@index([twitterId])\n  @@map(\"customer\")\n}\n\nmodel Conversation {\n  id         String     @id @default(cuid())\n  brandId    String\n  brand      Brand      @relation(fields: [brandId], references: [id], onDelete: Cascade)\n  customerId String?\n  customer   Customer?  @relation(fields: [customerId], references: [id], onDelete: Cascade)\n  twitterId  String?    @unique\n  createdAt  DateTime   @default(now())\n  updatedAt  DateTime   @updatedAt\n  messages   Message[]\n  agentRuns  AgentRun[]\n\n  @@index([brandId])\n  @@index([customerId])\n  @@map(\"conversation\")\n}\n\nmodel Message {\n  id             String       @id @default(cuid())\n  conversationId String\n  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)\n  twitterId      String?      @unique\n  authorId       String?\n  username       String?\n  text           String       @db.Text\n  role           MessageRole\n  createdAt      DateTime     @default(now())\n  evidence       Evidence[]\n\n  @@index([conversationId])\n  @@index([authorId])\n  @@map(\"message\")\n}\n\nmodel Intent {\n  id                 String              @id @default(cuid())\n  brandId            String\n  brand              Brand               @relation(fields: [brandId], references: [id], onDelete: Cascade)\n  name               String\n  description        String?             @db.Text\n  createdAt          DateTime            @default(now())\n  agentRuns          AgentRun[]\n  evaluationExamples EvaluationExample[]\n\n  @@unique([brandId, name])\n  @@index([brandId])\n  @@map(\"intent\")\n}\n\nmodel EvaluationSet {\n  id                 String              @id @default(cuid())\n  name               String\n  version            String\n  description        String?             @db.Text\n  createdAt          DateTime            @default(now())\n  evaluationExamples EvaluationExample[]\n\n  @@map(\"evaluation_set\")\n}\n\nmodel EvaluationExample {\n  id                 String        @id @default(cuid())\n  evaluationSetId    String\n  evaluationSet      EvaluationSet @relation(fields: [evaluationSetId], references: [id], onDelete: Cascade)\n  intentId           String?\n  intent             Intent?       @relation(fields: [intentId], references: [id], onDelete: SetNull)\n  text               String        @db.Text\n  expectedEscalation Boolean       @default(false)\n  expectedReply      String?       @db.Text\n  notes              String?       @db.Text\n  createdAt          DateTime      @default(now())\n  agentRuns          AgentRun[]\n\n  @@index([evaluationSetId])\n  @@index([intentId])\n  @@map(\"evaluation_example\")\n}\n\nmodel AgentRun {\n  id                  String             @id @default(cuid())\n  conversationId      String?\n  conversation        Conversation?      @relation(fields: [conversationId], references: [id], onDelete: Cascade)\n  evaluationExampleId String?\n  evaluationExample   EvaluationExample? @relation(fields: [evaluationExampleId], references: [id], onDelete: SetNull)\n  predictedIntentId   String?\n  predictedIntent     Intent?            @relation(fields: [predictedIntentId], references: [id], onDelete: SetNull)\n  inputText           String             @db.Text\n  draftReply          String?            @db.Text\n  shouldEscalate      Boolean            @default(false)\n  escalationReason    String?            @db.Text\n  model               String?\n  latencyMs           Int?\n  createdAt           DateTime           @default(now())\n  evidence            Evidence[]\n\n  @@index([conversationId])\n  @@index([evaluationExampleId])\n  @@index([predictedIntentId])\n  @@map(\"agent_run\")\n}\n\nmodel Evidence {\n  id             String   @id @default(cuid())\n  agentRunId     String\n  agentRun       AgentRun @relation(fields: [agentRunId], references: [id], onDelete: Cascade)\n  messageId      String\n  message        Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)\n  relevanceScore Float?\n  reason         String?  @db.Text\n\n  @@index([agentRunId])\n  @@index([messageId])\n  @@map(\"evidence\")\n}\n",
+  "inlineSchemaHash": "8208d45231d3f3fa6387bf2f269e83c4001a3099c6b7dfadce40c4d89dfe248d",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Post\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PostToUser\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"emailVerified\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"image\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sessions\",\"kind\":\"object\",\"type\":\"Session\",\"relationName\":\"SessionToUser\"},{\"name\":\"accounts\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"AccountToUser\"},{\"name\":\"posts\",\"kind\":\"object\",\"type\":\"Post\",\"relationName\":\"PostToUser\"}],\"dbName\":\"user\"},\"Session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ipAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userAgent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SessionToUser\"}],\"dbName\":\"session\"},\"Account\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accountId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"providerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AccountToUser\"},{\"name\":\"accessToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"refreshToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"idToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accessTokenExpiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"refreshTokenExpiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"scope\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"account\"},\"Verification\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"identifier\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"verification\"},\"test\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"age\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Post\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PostToUser\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"emailVerified\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"image\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sessions\",\"kind\":\"object\",\"type\":\"Session\",\"relationName\":\"SessionToUser\"},{\"name\":\"accounts\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"AccountToUser\"},{\"name\":\"posts\",\"kind\":\"object\",\"type\":\"Post\",\"relationName\":\"PostToUser\"}],\"dbName\":\"user\"},\"Session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ipAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userAgent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SessionToUser\"}],\"dbName\":\"session\"},\"Account\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accountId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"providerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AccountToUser\"},{\"name\":\"accessToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"refreshToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"idToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accessTokenExpiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"refreshTokenExpiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"scope\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"account\"},\"Verification\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"identifier\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"verification\"},\"Brand\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"customers\",\"kind\":\"object\",\"type\":\"Customer\",\"relationName\":\"BrandToCustomer\"},{\"name\":\"conversations\",\"kind\":\"object\",\"type\":\"Conversation\",\"relationName\":\"BrandToConversation\"},{\"name\":\"intents\",\"kind\":\"object\",\"type\":\"Intent\",\"relationName\":\"BrandToIntent\"}],\"dbName\":\"brand\"},\"Customer\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"brandId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"brand\",\"kind\":\"object\",\"type\":\"Brand\",\"relationName\":\"BrandToCustomer\"},{\"name\":\"twitterId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"conversations\",\"kind\":\"object\",\"type\":\"Conversation\",\"relationName\":\"ConversationToCustomer\"}],\"dbName\":\"customer\"},\"Conversation\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"brandId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"brand\",\"kind\":\"object\",\"type\":\"Brand\",\"relationName\":\"BrandToConversation\"},{\"name\":\"customerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"customer\",\"kind\":\"object\",\"type\":\"Customer\",\"relationName\":\"ConversationToCustomer\"},{\"name\":\"twitterId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"messages\",\"kind\":\"object\",\"type\":\"Message\",\"relationName\":\"ConversationToMessage\"},{\"name\":\"agentRuns\",\"kind\":\"object\",\"type\":\"AgentRun\",\"relationName\":\"AgentRunToConversation\"}],\"dbName\":\"conversation\"},\"Message\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"conversationId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"conversation\",\"kind\":\"object\",\"type\":\"Conversation\",\"relationName\":\"ConversationToMessage\"},{\"name\":\"twitterId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"authorId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"MessageRole\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"evidence\",\"kind\":\"object\",\"type\":\"Evidence\",\"relationName\":\"EvidenceToMessage\"}],\"dbName\":\"message\"},\"Intent\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"brandId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"brand\",\"kind\":\"object\",\"type\":\"Brand\",\"relationName\":\"BrandToIntent\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"agentRuns\",\"kind\":\"object\",\"type\":\"AgentRun\",\"relationName\":\"AgentRunToIntent\"},{\"name\":\"evaluationExamples\",\"kind\":\"object\",\"type\":\"EvaluationExample\",\"relationName\":\"EvaluationExampleToIntent\"}],\"dbName\":\"intent\"},\"EvaluationSet\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"version\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"evaluationExamples\",\"kind\":\"object\",\"type\":\"EvaluationExample\",\"relationName\":\"EvaluationExampleToEvaluationSet\"}],\"dbName\":\"evaluation_set\"},\"EvaluationExample\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"evaluationSetId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"evaluationSet\",\"kind\":\"object\",\"type\":\"EvaluationSet\",\"relationName\":\"EvaluationExampleToEvaluationSet\"},{\"name\":\"intentId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"intent\",\"kind\":\"object\",\"type\":\"Intent\",\"relationName\":\"EvaluationExampleToIntent\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expectedEscalation\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"expectedReply\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"agentRuns\",\"kind\":\"object\",\"type\":\"AgentRun\",\"relationName\":\"AgentRunToEvaluationExample\"}],\"dbName\":\"evaluation_example\"},\"AgentRun\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"conversationId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"conversation\",\"kind\":\"object\",\"type\":\"Conversation\",\"relationName\":\"AgentRunToConversation\"},{\"name\":\"evaluationExampleId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"evaluationExample\",\"kind\":\"object\",\"type\":\"EvaluationExample\",\"relationName\":\"AgentRunToEvaluationExample\"},{\"name\":\"predictedIntentId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"predictedIntent\",\"kind\":\"object\",\"type\":\"Intent\",\"relationName\":\"AgentRunToIntent\"},{\"name\":\"inputText\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"draftReply\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"shouldEscalate\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"escalationReason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"model\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"latencyMs\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"evidence\",\"kind\":\"object\",\"type\":\"Evidence\",\"relationName\":\"AgentRunToEvidence\"}],\"dbName\":\"agent_run\"},\"Evidence\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"agentRunId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"agentRun\",\"kind\":\"object\",\"type\":\"AgentRun\",\"relationName\":\"AgentRunToEvidence\"},{\"name\":\"messageId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"message\",\"kind\":\"object\",\"type\":\"Message\",\"relationName\":\"EvidenceToMessage\"},{\"name\":\"relevanceScore\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"reason\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":\"evidence\"}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

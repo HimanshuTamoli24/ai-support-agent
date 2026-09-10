@@ -14,7 +14,6 @@ import {
   DropdownMenuSeparator,
 } from "~/components/ui/dropdown-menu";
 import { DatasetUploader } from "./dataset-uploader";
-import { EvaluationBenchmark } from "./evaluation-benchmark";
 import { RecentRuns } from "./recent-runs";
 import { PublicChatView } from "./public-chat-view";
 
@@ -29,7 +28,7 @@ export interface SupportDashboardProps {
 export function SupportDashboard({ user }: SupportDashboardProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<
-    "overview" | "chat" | "benchmark" | "uploader" | "history"
+    "overview" | "chat" | "uploader" | "history"
   >("overview");
   const [testQuery, setTestQuery] = useState(
     "My iPhone battery is draining 50% faster after update.",
@@ -117,20 +116,6 @@ export function SupportDashboard({ user }: SupportDashboardProps) {
                 {brands.length}
               </span>
             )}
-          </button>
-
-          <button
-            type="button"
-            title="180-Case Benchmark"
-            onClick={() => setActiveTab("benchmark")}
-            className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 sm:px-3.5 text-xs font-semibold transition ${
-              activeTab === "benchmark"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-            }`}
-          >
-            <span>📊</span>
-            <span className="hidden sm:inline">180-Case Benchmark</span>
           </button>
 
           <button
@@ -435,10 +420,10 @@ export function SupportDashboard({ user }: SupportDashboardProps) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("benchmark")}
+                  onClick={() => setActiveTab("uploader")}
                   className="rounded-full bg-blue-700/60 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur-md transition hover:bg-blue-700"
                 >
-                  Run 180-Case Benchmark
+                  Ingest Dataset →
                 </button>
               </div>
             </div>
@@ -675,7 +660,6 @@ export function SupportDashboard({ user }: SupportDashboardProps) {
         </div>
       )}
 
-      {activeTab === "benchmark" && <EvaluationBenchmark />}
       {activeTab === "uploader" && (
         <DatasetUploader
           onUploadSuccess={() => {

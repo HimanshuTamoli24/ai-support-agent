@@ -19,8 +19,8 @@ This system provides a full-stack autonomous AI customer support platform design
 - 🌲 **Evidence-Grounded RAG (Pinecone + PostgreSQL)**: Retrieves semantic historical resolution precedents and policy citations to ensure every generated response is verifiable and factually accurate.
 - 🚨 **Risk-Calibrated Escalation Engine**: Proactively detects high-risk scenarios (swelling batteries, security compromises, severe churn sentiment, repeated failures) and escalates them to Tier-2 human teams with full reasoning and cited evidence.
 - ⚡ **Asynchronous Data Ingestion (Inngest Pipelines)**: Non-blocking background worker pipelines to process, parse, and embed massive conversational datasets into namespace-isolated vector stores.
-- 📊 **Built-in 180-Case Evaluation Benchmark Suite**: Empirical testing framework comparing the Evidence-Grounded Agent against Keyword Heuristic and Zero-Shot LLM baselines with Macro-F1, Escalation Recall, and Groundedness metrics.
-- 🌐 **Multi-Brand & Public Customer Portal**: Out-of-the-box support for multiple brand profiles with dedicated customer-facing chat interfaces (`/[brandId]/chat`).
+- 🌐 **Multi-Brand & Public Customer Portals**: Out-of-the-box support for multiple brand profiles with dedicated customer-facing chat interfaces (`/[brandId]/chat`).
+- 🕒 **Auditable Execution History**: Complete historical logging and metrics on intent predictions, escalation triggers, latency, and retrieved vector matches.
 
 ---
 
@@ -140,32 +140,9 @@ Visit **`http://localhost:3000`** in your browser.
   - **Calibrated Escalation Decision** (`AUTO_HANDLE` vs `ESCALATE`) and exact risk explanation.
   - **Grounded Response Formulation** citing historical resolution precedents.
 
-### 3. 📊 180-Case Evaluation & Benchmarking Suite
+### 3. 🕒 Execution Audit & Runs History
 
-- Empirically runs 180 golden evaluation examples across edge cases and adversarial scenarios.
-- Live comparison between 3 architectures:
-  1. **Keyword & Heuristic Rules** (Baseline 1)
-  2. **Zero-Shot LLM** (Baseline 2)
-  3. **Evidence-Grounded Support Agent** (Proposed Architecture)
-
----
-
-## 📈 Empirical Benchmark Results
-
-| Metric                                | Baseline 1 (Keyword Rules) | Baseline 2 (Zero-Shot LLM) | ✨ Evidence-Grounded Agent |
-| :------------------------------------ | :------------------------: | :------------------------: | :------------------------: |
-| **Intent Classification Macro-F1**    |           68.4%            |           81.2%            |         **94.8%**          |
-| **Intent Accuracy**                   |           71.1%            |           82.5%            |         **95.6%**          |
-| **Escalation Precision**              |           62.5%            |           77.4%            |         **93.2%**          |
-| **Escalation Recall**                 |           70.0%            |           80.0%            |         **98.0%**          |
-| **🚨 Critical Under-Escalation Rate** |           30.0%            |           20.0%            |          **2.0%**          |
-| **Factual Groundedness Score**        |           35.0%            |           68.5%            |         **96.2%**          |
-| **Average End-to-End Latency**        |          **3 ms**          |           460 ms           |         **385 ms**         |
-
-### Benchmark Highlights:
-
-- **Safety Risk Slashed**: Under-escalation on high-risk safety and account compromise queries dropped from **20% to 2%**.
-- **Factual Grounding**: 96.2% of generated drafts directly cite verified precedent messages indexed in Pinecone, eliminating hallucinated policies or nonexistent help URLs.
+- Complete audit trail of processed queries, predicted intents, escalation status, model latency, and grounded responses with one-click inspection.
 
 ---
 

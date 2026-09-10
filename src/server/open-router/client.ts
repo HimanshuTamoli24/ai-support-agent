@@ -9,6 +9,11 @@ export const openrouter = new OpenRouter({
 
 // Example callable function using openrouter
 export async function askWeather(city: string) {
+  if (!env.OPENROUTER_API_KEY) {
+    console.warn("⚠️ OPENROUTER_API_KEY is not set in .env. Skipping OpenRouter call.");
+    return `Simulated weather for ${city}: 72°F, Sunny (Set OPENROUTER_API_KEY in .env to use live model)`;
+  }
+
   const result = openrouter.callModel({
     model: "~anthropic/claude-sonnet-latest",
     input: `What is the weather in ${city}?`,

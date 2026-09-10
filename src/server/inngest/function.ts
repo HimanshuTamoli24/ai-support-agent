@@ -1,21 +1,19 @@
-import { getInngestClient } from "./client";
+import { inngest } from "./client";
 
-const inngest = getInngestClient();
-
-export const processTask = inngest.createFunction(
+export const testTask = inngest.createFunction(
   {
-    id: "process-task",
-    triggers: [{ event: "app/task.created" }],
+    id: "test-task",
+    name: "Test Background Task",
+    triggers: [{ event: "app/task.test" }],
   },
   async ({ event, step }) => {
     const result = await step.run("handle-task", async () => {
-      const data = event.data as { id?: string; name?: string };
-      return { processed: true, id: data?.id, name: data?.name };
+      console.log("Inngest task running with event data:", event.data);
+      return { processed: true, data: event.data };
     });
 
     await step.sleep("pause", "1s");
 
-    const data = event.data as { id?: string };
-    return { message: `Task ${data?.id} complete`, result };
+    return { message: "Task completed successfully!", result };
   },
 );

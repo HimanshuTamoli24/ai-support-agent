@@ -23,34 +23,19 @@ export interface RetrievedEvidence {
   username?: string;
 }
 
-let pineconeClient: Pinecone | null = null;
-
-export function getPineconeClient(): Pinecone {
-  if (!env.PINECONE_API_KEY) {
-    throw new Error(
-      "PINECONE_API_KEY is not configured. Please add it to your .env file.",
-    );
-  }
-
-  if (!pineconeClient) {
-    pineconeClient = new Pinecone({
-      apiKey: env.PINECONE_API_KEY,
-    });
-  }
-
-  return pineconeClient;
-}
+// Direct Pinecone variable export
+export const pinecone = new Pinecone({
+  apiKey: env.PINECONE_API_KEY || "",
+});
 
 export async function ensurePineconeIndex(dimension = 1024): Promise<string> {
-  const pc = getPineconeClient();
   const indexName = env.PINECONE_INDEX_NAME;
-
-  const indexes = await pc.listIndexes();
+  const indexes = await pinecone.listIndexes();
   const indexExists = indexes.indexes?.some((idx) => idx.name === indexName);
 
   if (!indexExists) {
     console.log(`Creating Pinecone serverless index: ${indexName}...`);
-    await pc.createIndex({
+    await pinecone.createIndex({
       name: indexName,
       dimension,
       metric: "cosine",
@@ -62,7 +47,6 @@ export async function ensurePineconeIndex(dimension = 1024): Promise<string> {
       },
     });
 
-    // Wait briefly for index initialization
     await new Promise((resolve) => setTimeout(resolve, 5000));
   }
 
@@ -73,12 +57,9 @@ export async function generateEmbeddings(
   texts: string[],
   inputType: "passage" | "query" = "passage",
 ): Promise<number[][]> {
-  const pc = getPineconeClient();
-
   if (texts.length === 0) return [];
 
-  // Pinecone Inference Embedding (multilingual-e5-large outputs 1024-dim vectors)
-  const embeddingResponse = await pc.inference.embed({
+  const embeddingResponse = await pinecone.inference.embed({
     model: "multilingual-e5-large",
     inputs: texts,
     parameters: {
@@ -113,9 +94,8 @@ export async function upsertMessagesToPinecone(
 ): Promise<{ upsertedCount: number }> {
   if (messages.length === 0) return { upsertedCount: 0 };
 
-  const pc = getPineconeClient();
   const indexName = await ensurePineconeIndex(1024);
-  const index = pc.index<MessageMetadata>(indexName);
+  const index = pinecone.index<MessageMetadata>(indexName);
 
   const BATCH_SIZE = 50;
   let totalUpserted = 0;
@@ -124,10 +104,8 @@ export async function upsertMessagesToPinecone(
     const chunk = messages.slice(i, i + BATCH_SIZE);
     const texts = chunk.map((m) => m.text.trim());
 
-    // Generate embeddings
     const embeddings = await generateEmbeddings(texts, "passage");
 
-    // Format records for Pinecone
     const records = chunk.map((m, idx) => ({
       id: m.id,
       values: embeddings[idx]!,
@@ -161,15 +139,12 @@ export async function querySimilarEvidence({
   topK?: number;
   role?: "CUSTOMER" | "BRAND";
 }): Promise<RetrievedEvidence[]> {
-  const pc = getPineconeClient();
   const indexName = await ensurePineconeIndex(1024);
-  const index = pc.index<MessageMetadata>(indexName);
+  const index = pinecone.index<MessageMetadata>(indexName);
 
-  // Generate query embedding
   const [queryEmbedding] = await generateEmbeddings([queryText], "query");
   if (!queryEmbedding) return [];
 
-  // Build metadata filter
   const filter: Record<string, unknown> = {};
   if (brandId) filter.brandId = { $eq: brandId };
   if (role) filter.role = { $eq: role };

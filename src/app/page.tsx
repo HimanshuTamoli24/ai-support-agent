@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import { getSession } from "~/server/better-auth/server";
-
 import Image from "next/image";
 import { SignOutButton } from "~/components/custom/sign-out-button";
 import { SupportDashboard } from "~/components/custom/support-dashboard";
+import { TriggerInngestBtn } from "~/components/custom/trigger-inngest-btn";
 
 export const metadata = {
   title: "AI Customer Support Agent - Dashboard",
@@ -13,9 +13,9 @@ export const metadata = {
 export default async function HomePage() {
   const session = await getSession();
 
-  // Route protection: If not logged in, redirect to /login
+  // Route protection: If not logged in, redirect to /auth
   if (!session?.user) {
-    redirect("/login");
+    redirect("/auth");
   }
 
   const { user } = session;
@@ -56,6 +56,9 @@ export default async function HomePage() {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Inngest Trigger Button */}
+            <TriggerInngestBtn />
+
             <div className="hidden items-center gap-3 sm:flex">
               {user.image ? (
                 <Image

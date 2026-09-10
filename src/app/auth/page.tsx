@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "~/server/better-auth/server";
-import { LoginForm } from "./components/login-form";
+import { LoginForm } from "~/components/custom/login-form";
 
 export const metadata = {
   title: "Sign In - AI Code Reviewer",

@@ -11,7 +11,7 @@ export function SignOutButton() {
   const handleSignOut = async () => {
     setIsPending(true);
     await authClient.signOut();
-    router.push("/login");
+    router.push("/auth");
     router.refresh();
   };
 

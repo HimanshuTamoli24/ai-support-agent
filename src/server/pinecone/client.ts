@@ -91,11 +91,13 @@ export async function upsertMessagesToPinecone(
     username?: string | null;
     createdAt?: Date;
   }>,
+  namespace?: string,
 ): Promise<{ upsertedCount: number }> {
   if (messages.length === 0) return { upsertedCount: 0 };
 
   const indexName = await ensurePineconeIndex(1024);
-  const index = pinecone.index<MessageMetadata>(indexName);
+  const baseIndex = pinecone.index<MessageMetadata>(indexName);
+  const index = namespace ? baseIndex.namespace(namespace) : baseIndex;
 
   const BATCH_SIZE = 50;
   let totalUpserted = 0;
@@ -133,14 +135,17 @@ export async function querySimilarEvidence({
   brandId,
   topK = 5,
   role,
+  namespace,
 }: {
   queryText: string;
   brandId?: string;
   topK?: number;
   role?: "CUSTOMER" | "BRAND";
+  namespace?: string;
 }): Promise<RetrievedEvidence[]> {
   const indexName = await ensurePineconeIndex(1024);
-  const index = pinecone.index<MessageMetadata>(indexName);
+  const baseIndex = pinecone.index<MessageMetadata>(indexName);
+  const index = namespace ? baseIndex.namespace(namespace) : baseIndex;
 
   const [queryEmbedding] = await generateEmbeddings([queryText], "query");
   if (!queryEmbedding) return [];

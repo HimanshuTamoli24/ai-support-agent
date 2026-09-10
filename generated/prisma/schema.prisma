@@ -39,6 +39,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   posts         Post[]
+  datasets      Dataset[]
 
   @@unique([email])
   @@map("user")
@@ -89,6 +90,29 @@ model Verification {
   @@map("verification")
 }
 
+enum DatasetStatus {
+  PROCESSING
+  READY
+  FAILED
+}
+
+model Dataset {
+  id           String        @id @default(cuid())
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name         String
+  rawData      Json?
+  status       DatasetStatus @default(PROCESSING)
+  errorMessage String?       @db.Text
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  brands       Brand[]
+  agentRuns    AgentRun[]
+
+  @@index([userId])
+  @@map("dataset")
+}
+
 enum MessageRole {
   CUSTOMER
   BRAND
@@ -96,6 +120,8 @@ enum MessageRole {
 
 model Brand {
   id            String         @id @default(cuid())
+  datasetId     String?
+  dataset       Dataset?       @relation(fields: [datasetId], references: [id], onDelete: Cascade)
   name          String
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -103,6 +129,7 @@ model Brand {
   conversations Conversation[]
   intents       Intent[]
 
+  @@index([datasetId])
   @@map("brand")
 }
 
@@ -201,6 +228,8 @@ model EvaluationExample {
 
 model AgentRun {
   id                  String             @id @default(cuid())
+  datasetId           String?
+  dataset             Dataset?           @relation(fields: [datasetId], references: [id], onDelete: Cascade)
   conversationId      String?
   conversation        Conversation?      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   evaluationExampleId String?
@@ -216,6 +245,7 @@ model AgentRun {
   createdAt           DateTime           @default(now())
   evidence            Evidence[]
 
+  @@index([datasetId])
   @@index([conversationId])
   @@index([evaluationExampleId])
   @@index([predictedIntentId])

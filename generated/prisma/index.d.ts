@@ -39,6 +39,11 @@ export type Account = $Result.DefaultSelection<Prisma.$AccountPayload>
  */
 export type Verification = $Result.DefaultSelection<Prisma.$VerificationPayload>
 /**
+ * Model Dataset
+ * 
+ */
+export type Dataset = $Result.DefaultSelection<Prisma.$DatasetPayload>
+/**
  * Model Brand
  * 
  */
@@ -88,7 +93,16 @@ export type Evidence = $Result.DefaultSelection<Prisma.$EvidencePayload>
  * Enums
  */
 export namespace $Enums {
-  export const MessageRole: {
+  export const DatasetStatus: {
+  PROCESSING: 'PROCESSING',
+  READY: 'READY',
+  FAILED: 'FAILED'
+};
+
+export type DatasetStatus = (typeof DatasetStatus)[keyof typeof DatasetStatus]
+
+
+export const MessageRole: {
   CUSTOMER: 'CUSTOMER',
   BRAND: 'BRAND'
 };
@@ -96,6 +110,10 @@ export namespace $Enums {
 export type MessageRole = (typeof MessageRole)[keyof typeof MessageRole]
 
 }
+
+export type DatasetStatus = $Enums.DatasetStatus
+
+export const DatasetStatus: typeof $Enums.DatasetStatus
 
 export type MessageRole = $Enums.MessageRole
 
@@ -268,6 +286,16 @@ export class PrismaClient<
     * ```
     */
   get verification(): Prisma.VerificationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.dataset`: Exposes CRUD operations for the **Dataset** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Datasets
+    * const datasets = await prisma.dataset.findMany()
+    * ```
+    */
+  get dataset(): Prisma.DatasetDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.brand`: Exposes CRUD operations for the **Brand** model.
@@ -804,6 +832,7 @@ export namespace Prisma {
     Session: 'Session',
     Account: 'Account',
     Verification: 'Verification',
+    Dataset: 'Dataset',
     Brand: 'Brand',
     Customer: 'Customer',
     Conversation: 'Conversation',
@@ -831,7 +860,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "post" | "user" | "session" | "account" | "verification" | "brand" | "customer" | "conversation" | "message" | "intent" | "evaluationSet" | "evaluationExample" | "agentRun" | "evidence"
+      modelProps: "post" | "user" | "session" | "account" | "verification" | "dataset" | "brand" | "customer" | "conversation" | "message" | "intent" | "evaluationSet" | "evaluationExample" | "agentRun" | "evidence"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1202,6 +1231,80 @@ export namespace Prisma {
           count: {
             args: Prisma.VerificationCountArgs<ExtArgs>
             result: $Utils.Optional<VerificationCountAggregateOutputType> | number
+          }
+        }
+      }
+      Dataset: {
+        payload: Prisma.$DatasetPayload<ExtArgs>
+        fields: Prisma.DatasetFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DatasetFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DatasetPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DatasetFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DatasetPayload>
+          }
+          findFirst: {
+            args: Prisma.DatasetFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DatasetPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DatasetFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DatasetPayload>
+          }
+          findMany: {
+            args: Prisma.DatasetFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DatasetPayload>[]
+          }
+          create: {
+            args: Prisma.DatasetCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DatasetPayload>
+          }
+          createMany: {
+            args: Prisma.DatasetCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DatasetCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DatasetPayload>[]
+          }
+          delete: {
+            args: Prisma.DatasetDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DatasetPayload>
+          }
+          update: {
+            args: Prisma.DatasetUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DatasetPayload>
+          }
+          deleteMany: {
+            args: Prisma.DatasetDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DatasetUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DatasetUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DatasetPayload>[]
+          }
+          upsert: {
+            args: Prisma.DatasetUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DatasetPayload>
+          }
+          aggregate: {
+            args: Prisma.DatasetAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDataset>
+          }
+          groupBy: {
+            args: Prisma.DatasetGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DatasetGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DatasetCountArgs<ExtArgs>
+            result: $Utils.Optional<DatasetCountAggregateOutputType> | number
           }
         }
       }
@@ -1972,6 +2075,7 @@ export namespace Prisma {
     session?: SessionOmit
     account?: AccountOmit
     verification?: VerificationOmit
+    dataset?: DatasetOmit
     brand?: BrandOmit
     customer?: CustomerOmit
     conversation?: ConversationOmit
@@ -2064,12 +2168,14 @@ export namespace Prisma {
     sessions: number
     accounts: number
     posts: number
+    datasets: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sessions?: boolean | UserCountOutputTypeCountSessionsArgs
     accounts?: boolean | UserCountOutputTypeCountAccountsArgs
     posts?: boolean | UserCountOutputTypeCountPostsArgs
+    datasets?: boolean | UserCountOutputTypeCountDatasetsArgs
   }
 
   // Custom InputTypes
@@ -2102,6 +2208,53 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountPostsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PostWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountDatasetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DatasetWhereInput
+  }
+
+
+  /**
+   * Count Type DatasetCountOutputType
+   */
+
+  export type DatasetCountOutputType = {
+    brands: number
+    agentRuns: number
+  }
+
+  export type DatasetCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    brands?: boolean | DatasetCountOutputTypeCountBrandsArgs
+    agentRuns?: boolean | DatasetCountOutputTypeCountAgentRunsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * DatasetCountOutputType without action
+   */
+  export type DatasetCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DatasetCountOutputType
+     */
+    select?: DatasetCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * DatasetCountOutputType without action
+   */
+  export type DatasetCountOutputTypeCountBrandsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BrandWhereInput
+  }
+
+  /**
+   * DatasetCountOutputType without action
+   */
+  export type DatasetCountOutputTypeCountAgentRunsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentRunWhereInput
   }
 
 
@@ -3634,6 +3787,7 @@ export namespace Prisma {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     posts?: boolean | User$postsArgs<ExtArgs>
+    datasets?: boolean | User$datasetsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -3672,6 +3826,7 @@ export namespace Prisma {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     posts?: boolean | User$postsArgs<ExtArgs>
+    datasets?: boolean | User$datasetsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -3683,6 +3838,7 @@ export namespace Prisma {
       sessions: Prisma.$SessionPayload<ExtArgs>[]
       accounts: Prisma.$AccountPayload<ExtArgs>[]
       posts: Prisma.$PostPayload<ExtArgs>[]
+      datasets: Prisma.$DatasetPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4089,6 +4245,7 @@ export namespace Prisma {
     sessions<T extends User$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     accounts<T extends User$accountsArgs<ExtArgs> = {}>(args?: Subset<T, User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     posts<T extends User$postsArgs<ExtArgs> = {}>(args?: Subset<T, User$postsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    datasets<T extends User$datasetsArgs<ExtArgs> = {}>(args?: Subset<T, User$datasetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4582,6 +4739,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PostScalarFieldEnum | PostScalarFieldEnum[]
+  }
+
+  /**
+   * User.datasets
+   */
+  export type User$datasetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetInclude<ExtArgs> | null
+    where?: DatasetWhereInput
+    orderBy?: DatasetOrderByWithRelationInput | DatasetOrderByWithRelationInput[]
+    cursor?: DatasetWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DatasetScalarFieldEnum | DatasetScalarFieldEnum[]
   }
 
   /**
@@ -7871,6 +8052,1176 @@ export namespace Prisma {
 
 
   /**
+   * Model Dataset
+   */
+
+  export type AggregateDataset = {
+    _count: DatasetCountAggregateOutputType | null
+    _min: DatasetMinAggregateOutputType | null
+    _max: DatasetMaxAggregateOutputType | null
+  }
+
+  export type DatasetMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    name: string | null
+    status: $Enums.DatasetStatus | null
+    errorMessage: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DatasetMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    name: string | null
+    status: $Enums.DatasetStatus | null
+    errorMessage: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DatasetCountAggregateOutputType = {
+    id: number
+    userId: number
+    name: number
+    rawData: number
+    status: number
+    errorMessage: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DatasetMinAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    status?: true
+    errorMessage?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DatasetMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    status?: true
+    errorMessage?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DatasetCountAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    rawData?: true
+    status?: true
+    errorMessage?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DatasetAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Dataset to aggregate.
+     */
+    where?: DatasetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Datasets to fetch.
+     */
+    orderBy?: DatasetOrderByWithRelationInput | DatasetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DatasetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Datasets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Datasets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Datasets
+    **/
+    _count?: true | DatasetCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DatasetMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DatasetMaxAggregateInputType
+  }
+
+  export type GetDatasetAggregateType<T extends DatasetAggregateArgs> = {
+        [P in keyof T & keyof AggregateDataset]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDataset[P]>
+      : GetScalarType<T[P], AggregateDataset[P]>
+  }
+
+
+
+
+  export type DatasetGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DatasetWhereInput
+    orderBy?: DatasetOrderByWithAggregationInput | DatasetOrderByWithAggregationInput[]
+    by: DatasetScalarFieldEnum[] | DatasetScalarFieldEnum
+    having?: DatasetScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DatasetCountAggregateInputType | true
+    _min?: DatasetMinAggregateInputType
+    _max?: DatasetMaxAggregateInputType
+  }
+
+  export type DatasetGroupByOutputType = {
+    id: string
+    userId: string | null
+    name: string
+    rawData: JsonValue | null
+    status: $Enums.DatasetStatus
+    errorMessage: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: DatasetCountAggregateOutputType | null
+    _min: DatasetMinAggregateOutputType | null
+    _max: DatasetMaxAggregateOutputType | null
+  }
+
+  type GetDatasetGroupByPayload<T extends DatasetGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DatasetGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DatasetGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DatasetGroupByOutputType[P]>
+            : GetScalarType<T[P], DatasetGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DatasetSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    rawData?: boolean
+    status?: boolean
+    errorMessage?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | Dataset$userArgs<ExtArgs>
+    brands?: boolean | Dataset$brandsArgs<ExtArgs>
+    agentRuns?: boolean | Dataset$agentRunsArgs<ExtArgs>
+    _count?: boolean | DatasetCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dataset"]>
+
+  export type DatasetSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    rawData?: boolean
+    status?: boolean
+    errorMessage?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | Dataset$userArgs<ExtArgs>
+  }, ExtArgs["result"]["dataset"]>
+
+  export type DatasetSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    rawData?: boolean
+    status?: boolean
+    errorMessage?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | Dataset$userArgs<ExtArgs>
+  }, ExtArgs["result"]["dataset"]>
+
+  export type DatasetSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    rawData?: boolean
+    status?: boolean
+    errorMessage?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DatasetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "rawData" | "status" | "errorMessage" | "createdAt" | "updatedAt", ExtArgs["result"]["dataset"]>
+  export type DatasetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | Dataset$userArgs<ExtArgs>
+    brands?: boolean | Dataset$brandsArgs<ExtArgs>
+    agentRuns?: boolean | Dataset$agentRunsArgs<ExtArgs>
+    _count?: boolean | DatasetCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type DatasetIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | Dataset$userArgs<ExtArgs>
+  }
+  export type DatasetIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | Dataset$userArgs<ExtArgs>
+  }
+
+  export type $DatasetPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Dataset"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
+      brands: Prisma.$BrandPayload<ExtArgs>[]
+      agentRuns: Prisma.$AgentRunPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string | null
+      name: string
+      rawData: Prisma.JsonValue | null
+      status: $Enums.DatasetStatus
+      errorMessage: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["dataset"]>
+    composites: {}
+  }
+
+  type DatasetGetPayload<S extends boolean | null | undefined | DatasetDefaultArgs> = $Result.GetResult<Prisma.$DatasetPayload, S>
+
+  type DatasetCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DatasetFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DatasetCountAggregateInputType | true
+    }
+
+  export interface DatasetDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Dataset'], meta: { name: 'Dataset' } }
+    /**
+     * Find zero or one Dataset that matches the filter.
+     * @param {DatasetFindUniqueArgs} args - Arguments to find a Dataset
+     * @example
+     * // Get one Dataset
+     * const dataset = await prisma.dataset.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DatasetFindUniqueArgs>(args: SelectSubset<T, DatasetFindUniqueArgs<ExtArgs>>): Prisma__DatasetClient<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Dataset that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DatasetFindUniqueOrThrowArgs} args - Arguments to find a Dataset
+     * @example
+     * // Get one Dataset
+     * const dataset = await prisma.dataset.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DatasetFindUniqueOrThrowArgs>(args: SelectSubset<T, DatasetFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DatasetClient<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Dataset that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DatasetFindFirstArgs} args - Arguments to find a Dataset
+     * @example
+     * // Get one Dataset
+     * const dataset = await prisma.dataset.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DatasetFindFirstArgs>(args?: SelectSubset<T, DatasetFindFirstArgs<ExtArgs>>): Prisma__DatasetClient<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Dataset that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DatasetFindFirstOrThrowArgs} args - Arguments to find a Dataset
+     * @example
+     * // Get one Dataset
+     * const dataset = await prisma.dataset.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DatasetFindFirstOrThrowArgs>(args?: SelectSubset<T, DatasetFindFirstOrThrowArgs<ExtArgs>>): Prisma__DatasetClient<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Datasets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DatasetFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Datasets
+     * const datasets = await prisma.dataset.findMany()
+     * 
+     * // Get first 10 Datasets
+     * const datasets = await prisma.dataset.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const datasetWithIdOnly = await prisma.dataset.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DatasetFindManyArgs>(args?: SelectSubset<T, DatasetFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Dataset.
+     * @param {DatasetCreateArgs} args - Arguments to create a Dataset.
+     * @example
+     * // Create one Dataset
+     * const Dataset = await prisma.dataset.create({
+     *   data: {
+     *     // ... data to create a Dataset
+     *   }
+     * })
+     * 
+     */
+    create<T extends DatasetCreateArgs>(args: SelectSubset<T, DatasetCreateArgs<ExtArgs>>): Prisma__DatasetClient<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Datasets.
+     * @param {DatasetCreateManyArgs} args - Arguments to create many Datasets.
+     * @example
+     * // Create many Datasets
+     * const dataset = await prisma.dataset.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DatasetCreateManyArgs>(args?: SelectSubset<T, DatasetCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Datasets and returns the data saved in the database.
+     * @param {DatasetCreateManyAndReturnArgs} args - Arguments to create many Datasets.
+     * @example
+     * // Create many Datasets
+     * const dataset = await prisma.dataset.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Datasets and only return the `id`
+     * const datasetWithIdOnly = await prisma.dataset.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DatasetCreateManyAndReturnArgs>(args?: SelectSubset<T, DatasetCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Dataset.
+     * @param {DatasetDeleteArgs} args - Arguments to delete one Dataset.
+     * @example
+     * // Delete one Dataset
+     * const Dataset = await prisma.dataset.delete({
+     *   where: {
+     *     // ... filter to delete one Dataset
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DatasetDeleteArgs>(args: SelectSubset<T, DatasetDeleteArgs<ExtArgs>>): Prisma__DatasetClient<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Dataset.
+     * @param {DatasetUpdateArgs} args - Arguments to update one Dataset.
+     * @example
+     * // Update one Dataset
+     * const dataset = await prisma.dataset.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DatasetUpdateArgs>(args: SelectSubset<T, DatasetUpdateArgs<ExtArgs>>): Prisma__DatasetClient<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Datasets.
+     * @param {DatasetDeleteManyArgs} args - Arguments to filter Datasets to delete.
+     * @example
+     * // Delete a few Datasets
+     * const { count } = await prisma.dataset.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DatasetDeleteManyArgs>(args?: SelectSubset<T, DatasetDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Datasets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DatasetUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Datasets
+     * const dataset = await prisma.dataset.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DatasetUpdateManyArgs>(args: SelectSubset<T, DatasetUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Datasets and returns the data updated in the database.
+     * @param {DatasetUpdateManyAndReturnArgs} args - Arguments to update many Datasets.
+     * @example
+     * // Update many Datasets
+     * const dataset = await prisma.dataset.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Datasets and only return the `id`
+     * const datasetWithIdOnly = await prisma.dataset.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DatasetUpdateManyAndReturnArgs>(args: SelectSubset<T, DatasetUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Dataset.
+     * @param {DatasetUpsertArgs} args - Arguments to update or create a Dataset.
+     * @example
+     * // Update or create a Dataset
+     * const dataset = await prisma.dataset.upsert({
+     *   create: {
+     *     // ... data to create a Dataset
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Dataset we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DatasetUpsertArgs>(args: SelectSubset<T, DatasetUpsertArgs<ExtArgs>>): Prisma__DatasetClient<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Datasets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DatasetCountArgs} args - Arguments to filter Datasets to count.
+     * @example
+     * // Count the number of Datasets
+     * const count = await prisma.dataset.count({
+     *   where: {
+     *     // ... the filter for the Datasets we want to count
+     *   }
+     * })
+    **/
+    count<T extends DatasetCountArgs>(
+      args?: Subset<T, DatasetCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DatasetCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Dataset.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DatasetAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DatasetAggregateArgs>(args: Subset<T, DatasetAggregateArgs>): Prisma.PrismaPromise<GetDatasetAggregateType<T>>
+
+    /**
+     * Group by Dataset.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DatasetGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DatasetGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DatasetGroupByArgs['orderBy'] }
+        : { orderBy?: DatasetGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DatasetGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDatasetGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Dataset model
+   */
+  readonly fields: DatasetFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Dataset.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DatasetClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends Dataset$userArgs<ExtArgs> = {}>(args?: Subset<T, Dataset$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    brands<T extends Dataset$brandsArgs<ExtArgs> = {}>(args?: Subset<T, Dataset$brandsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BrandPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    agentRuns<T extends Dataset$agentRunsArgs<ExtArgs> = {}>(args?: Subset<T, Dataset$agentRunsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Dataset model
+   */
+  interface DatasetFieldRefs {
+    readonly id: FieldRef<"Dataset", 'String'>
+    readonly userId: FieldRef<"Dataset", 'String'>
+    readonly name: FieldRef<"Dataset", 'String'>
+    readonly rawData: FieldRef<"Dataset", 'Json'>
+    readonly status: FieldRef<"Dataset", 'DatasetStatus'>
+    readonly errorMessage: FieldRef<"Dataset", 'String'>
+    readonly createdAt: FieldRef<"Dataset", 'DateTime'>
+    readonly updatedAt: FieldRef<"Dataset", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Dataset findUnique
+   */
+  export type DatasetFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetInclude<ExtArgs> | null
+    /**
+     * Filter, which Dataset to fetch.
+     */
+    where: DatasetWhereUniqueInput
+  }
+
+  /**
+   * Dataset findUniqueOrThrow
+   */
+  export type DatasetFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetInclude<ExtArgs> | null
+    /**
+     * Filter, which Dataset to fetch.
+     */
+    where: DatasetWhereUniqueInput
+  }
+
+  /**
+   * Dataset findFirst
+   */
+  export type DatasetFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetInclude<ExtArgs> | null
+    /**
+     * Filter, which Dataset to fetch.
+     */
+    where?: DatasetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Datasets to fetch.
+     */
+    orderBy?: DatasetOrderByWithRelationInput | DatasetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Datasets.
+     */
+    cursor?: DatasetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Datasets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Datasets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Datasets.
+     */
+    distinct?: DatasetScalarFieldEnum | DatasetScalarFieldEnum[]
+  }
+
+  /**
+   * Dataset findFirstOrThrow
+   */
+  export type DatasetFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetInclude<ExtArgs> | null
+    /**
+     * Filter, which Dataset to fetch.
+     */
+    where?: DatasetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Datasets to fetch.
+     */
+    orderBy?: DatasetOrderByWithRelationInput | DatasetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Datasets.
+     */
+    cursor?: DatasetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Datasets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Datasets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Datasets.
+     */
+    distinct?: DatasetScalarFieldEnum | DatasetScalarFieldEnum[]
+  }
+
+  /**
+   * Dataset findMany
+   */
+  export type DatasetFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetInclude<ExtArgs> | null
+    /**
+     * Filter, which Datasets to fetch.
+     */
+    where?: DatasetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Datasets to fetch.
+     */
+    orderBy?: DatasetOrderByWithRelationInput | DatasetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Datasets.
+     */
+    cursor?: DatasetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Datasets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Datasets.
+     */
+    skip?: number
+    distinct?: DatasetScalarFieldEnum | DatasetScalarFieldEnum[]
+  }
+
+  /**
+   * Dataset create
+   */
+  export type DatasetCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Dataset.
+     */
+    data: XOR<DatasetCreateInput, DatasetUncheckedCreateInput>
+  }
+
+  /**
+   * Dataset createMany
+   */
+  export type DatasetCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Datasets.
+     */
+    data: DatasetCreateManyInput | DatasetCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Dataset createManyAndReturn
+   */
+  export type DatasetCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * The data used to create many Datasets.
+     */
+    data: DatasetCreateManyInput | DatasetCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Dataset update
+   */
+  export type DatasetUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Dataset.
+     */
+    data: XOR<DatasetUpdateInput, DatasetUncheckedUpdateInput>
+    /**
+     * Choose, which Dataset to update.
+     */
+    where: DatasetWhereUniqueInput
+  }
+
+  /**
+   * Dataset updateMany
+   */
+  export type DatasetUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Datasets.
+     */
+    data: XOR<DatasetUpdateManyMutationInput, DatasetUncheckedUpdateManyInput>
+    /**
+     * Filter which Datasets to update
+     */
+    where?: DatasetWhereInput
+    /**
+     * Limit how many Datasets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Dataset updateManyAndReturn
+   */
+  export type DatasetUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * The data used to update Datasets.
+     */
+    data: XOR<DatasetUpdateManyMutationInput, DatasetUncheckedUpdateManyInput>
+    /**
+     * Filter which Datasets to update
+     */
+    where?: DatasetWhereInput
+    /**
+     * Limit how many Datasets to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Dataset upsert
+   */
+  export type DatasetUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Dataset to update in case it exists.
+     */
+    where: DatasetWhereUniqueInput
+    /**
+     * In case the Dataset found by the `where` argument doesn't exist, create a new Dataset with this data.
+     */
+    create: XOR<DatasetCreateInput, DatasetUncheckedCreateInput>
+    /**
+     * In case the Dataset was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DatasetUpdateInput, DatasetUncheckedUpdateInput>
+  }
+
+  /**
+   * Dataset delete
+   */
+  export type DatasetDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetInclude<ExtArgs> | null
+    /**
+     * Filter which Dataset to delete.
+     */
+    where: DatasetWhereUniqueInput
+  }
+
+  /**
+   * Dataset deleteMany
+   */
+  export type DatasetDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Datasets to delete
+     */
+    where?: DatasetWhereInput
+    /**
+     * Limit how many Datasets to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Dataset.user
+   */
+  export type Dataset$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * Dataset.brands
+   */
+  export type Dataset$brandsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Brand
+     */
+    select?: BrandSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Brand
+     */
+    omit?: BrandOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrandInclude<ExtArgs> | null
+    where?: BrandWhereInput
+    orderBy?: BrandOrderByWithRelationInput | BrandOrderByWithRelationInput[]
+    cursor?: BrandWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BrandScalarFieldEnum | BrandScalarFieldEnum[]
+  }
+
+  /**
+   * Dataset.agentRuns
+   */
+  export type Dataset$agentRunsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentRun
+     */
+    select?: AgentRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentRun
+     */
+    omit?: AgentRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentRunInclude<ExtArgs> | null
+    where?: AgentRunWhereInput
+    orderBy?: AgentRunOrderByWithRelationInput | AgentRunOrderByWithRelationInput[]
+    cursor?: AgentRunWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AgentRunScalarFieldEnum | AgentRunScalarFieldEnum[]
+  }
+
+  /**
+   * Dataset without action
+   */
+  export type DatasetDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model Brand
    */
 
@@ -7882,6 +9233,7 @@ export namespace Prisma {
 
   export type BrandMinAggregateOutputType = {
     id: string | null
+    datasetId: string | null
     name: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -7889,6 +9241,7 @@ export namespace Prisma {
 
   export type BrandMaxAggregateOutputType = {
     id: string | null
+    datasetId: string | null
     name: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -7896,6 +9249,7 @@ export namespace Prisma {
 
   export type BrandCountAggregateOutputType = {
     id: number
+    datasetId: number
     name: number
     createdAt: number
     updatedAt: number
@@ -7905,6 +9259,7 @@ export namespace Prisma {
 
   export type BrandMinAggregateInputType = {
     id?: true
+    datasetId?: true
     name?: true
     createdAt?: true
     updatedAt?: true
@@ -7912,6 +9267,7 @@ export namespace Prisma {
 
   export type BrandMaxAggregateInputType = {
     id?: true
+    datasetId?: true
     name?: true
     createdAt?: true
     updatedAt?: true
@@ -7919,6 +9275,7 @@ export namespace Prisma {
 
   export type BrandCountAggregateInputType = {
     id?: true
+    datasetId?: true
     name?: true
     createdAt?: true
     updatedAt?: true
@@ -7999,6 +9356,7 @@ export namespace Prisma {
 
   export type BrandGroupByOutputType = {
     id: string
+    datasetId: string | null
     name: string
     createdAt: Date
     updatedAt: Date
@@ -8023,9 +9381,11 @@ export namespace Prisma {
 
   export type BrandSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    datasetId?: boolean
     name?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    dataset?: boolean | Brand$datasetArgs<ExtArgs>
     customers?: boolean | Brand$customersArgs<ExtArgs>
     conversations?: boolean | Brand$conversationsArgs<ExtArgs>
     intents?: boolean | Brand$intentsArgs<ExtArgs>
@@ -8034,44 +9394,56 @@ export namespace Prisma {
 
   export type BrandSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    datasetId?: boolean
     name?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    dataset?: boolean | Brand$datasetArgs<ExtArgs>
   }, ExtArgs["result"]["brand"]>
 
   export type BrandSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    datasetId?: boolean
     name?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    dataset?: boolean | Brand$datasetArgs<ExtArgs>
   }, ExtArgs["result"]["brand"]>
 
   export type BrandSelectScalar = {
     id?: boolean
+    datasetId?: boolean
     name?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type BrandOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "createdAt" | "updatedAt", ExtArgs["result"]["brand"]>
+  export type BrandOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "datasetId" | "name" | "createdAt" | "updatedAt", ExtArgs["result"]["brand"]>
   export type BrandInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dataset?: boolean | Brand$datasetArgs<ExtArgs>
     customers?: boolean | Brand$customersArgs<ExtArgs>
     conversations?: boolean | Brand$conversationsArgs<ExtArgs>
     intents?: boolean | Brand$intentsArgs<ExtArgs>
     _count?: boolean | BrandCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type BrandIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type BrandIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type BrandIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dataset?: boolean | Brand$datasetArgs<ExtArgs>
+  }
+  export type BrandIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dataset?: boolean | Brand$datasetArgs<ExtArgs>
+  }
 
   export type $BrandPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Brand"
     objects: {
+      dataset: Prisma.$DatasetPayload<ExtArgs> | null
       customers: Prisma.$CustomerPayload<ExtArgs>[]
       conversations: Prisma.$ConversationPayload<ExtArgs>[]
       intents: Prisma.$IntentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      datasetId: string | null
       name: string
       createdAt: Date
       updatedAt: Date
@@ -8469,6 +9841,7 @@ export namespace Prisma {
    */
   export interface Prisma__BrandClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    dataset<T extends Brand$datasetArgs<ExtArgs> = {}>(args?: Subset<T, Brand$datasetArgs<ExtArgs>>): Prisma__DatasetClient<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     customers<T extends Brand$customersArgs<ExtArgs> = {}>(args?: Subset<T, Brand$customersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     conversations<T extends Brand$conversationsArgs<ExtArgs> = {}>(args?: Subset<T, Brand$conversationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     intents<T extends Brand$intentsArgs<ExtArgs> = {}>(args?: Subset<T, Brand$intentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$IntentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -8502,6 +9875,7 @@ export namespace Prisma {
    */
   interface BrandFieldRefs {
     readonly id: FieldRef<"Brand", 'String'>
+    readonly datasetId: FieldRef<"Brand", 'String'>
     readonly name: FieldRef<"Brand", 'String'>
     readonly createdAt: FieldRef<"Brand", 'DateTime'>
     readonly updatedAt: FieldRef<"Brand", 'DateTime'>
@@ -8754,6 +10128,10 @@ export namespace Prisma {
      */
     data: BrandCreateManyInput | BrandCreateManyInput[]
     skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrandIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -8824,6 +10202,10 @@ export namespace Prisma {
      * Limit how many Brands to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BrandIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -8890,6 +10272,25 @@ export namespace Prisma {
      * Limit how many Brands to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Brand.dataset
+   */
+  export type Brand$datasetArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetInclude<ExtArgs> | null
+    where?: DatasetWhereInput
   }
 
   /**
@@ -15729,6 +17130,7 @@ export namespace Prisma {
 
   export type AgentRunMinAggregateOutputType = {
     id: string | null
+    datasetId: string | null
     conversationId: string | null
     evaluationExampleId: string | null
     predictedIntentId: string | null
@@ -15743,6 +17145,7 @@ export namespace Prisma {
 
   export type AgentRunMaxAggregateOutputType = {
     id: string | null
+    datasetId: string | null
     conversationId: string | null
     evaluationExampleId: string | null
     predictedIntentId: string | null
@@ -15757,6 +17160,7 @@ export namespace Prisma {
 
   export type AgentRunCountAggregateOutputType = {
     id: number
+    datasetId: number
     conversationId: number
     evaluationExampleId: number
     predictedIntentId: number
@@ -15781,6 +17185,7 @@ export namespace Prisma {
 
   export type AgentRunMinAggregateInputType = {
     id?: true
+    datasetId?: true
     conversationId?: true
     evaluationExampleId?: true
     predictedIntentId?: true
@@ -15795,6 +17200,7 @@ export namespace Prisma {
 
   export type AgentRunMaxAggregateInputType = {
     id?: true
+    datasetId?: true
     conversationId?: true
     evaluationExampleId?: true
     predictedIntentId?: true
@@ -15809,6 +17215,7 @@ export namespace Prisma {
 
   export type AgentRunCountAggregateInputType = {
     id?: true
+    datasetId?: true
     conversationId?: true
     evaluationExampleId?: true
     predictedIntentId?: true
@@ -15910,6 +17317,7 @@ export namespace Prisma {
 
   export type AgentRunGroupByOutputType = {
     id: string
+    datasetId: string | null
     conversationId: string | null
     evaluationExampleId: string | null
     predictedIntentId: string | null
@@ -15943,6 +17351,7 @@ export namespace Prisma {
 
   export type AgentRunSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    datasetId?: boolean
     conversationId?: boolean
     evaluationExampleId?: boolean
     predictedIntentId?: boolean
@@ -15953,6 +17362,7 @@ export namespace Prisma {
     model?: boolean
     latencyMs?: boolean
     createdAt?: boolean
+    dataset?: boolean | AgentRun$datasetArgs<ExtArgs>
     conversation?: boolean | AgentRun$conversationArgs<ExtArgs>
     evaluationExample?: boolean | AgentRun$evaluationExampleArgs<ExtArgs>
     predictedIntent?: boolean | AgentRun$predictedIntentArgs<ExtArgs>
@@ -15962,6 +17372,7 @@ export namespace Prisma {
 
   export type AgentRunSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    datasetId?: boolean
     conversationId?: boolean
     evaluationExampleId?: boolean
     predictedIntentId?: boolean
@@ -15972,6 +17383,7 @@ export namespace Prisma {
     model?: boolean
     latencyMs?: boolean
     createdAt?: boolean
+    dataset?: boolean | AgentRun$datasetArgs<ExtArgs>
     conversation?: boolean | AgentRun$conversationArgs<ExtArgs>
     evaluationExample?: boolean | AgentRun$evaluationExampleArgs<ExtArgs>
     predictedIntent?: boolean | AgentRun$predictedIntentArgs<ExtArgs>
@@ -15979,6 +17391,7 @@ export namespace Prisma {
 
   export type AgentRunSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    datasetId?: boolean
     conversationId?: boolean
     evaluationExampleId?: boolean
     predictedIntentId?: boolean
@@ -15989,6 +17402,7 @@ export namespace Prisma {
     model?: boolean
     latencyMs?: boolean
     createdAt?: boolean
+    dataset?: boolean | AgentRun$datasetArgs<ExtArgs>
     conversation?: boolean | AgentRun$conversationArgs<ExtArgs>
     evaluationExample?: boolean | AgentRun$evaluationExampleArgs<ExtArgs>
     predictedIntent?: boolean | AgentRun$predictedIntentArgs<ExtArgs>
@@ -15996,6 +17410,7 @@ export namespace Prisma {
 
   export type AgentRunSelectScalar = {
     id?: boolean
+    datasetId?: boolean
     conversationId?: boolean
     evaluationExampleId?: boolean
     predictedIntentId?: boolean
@@ -16008,8 +17423,9 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type AgentRunOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "conversationId" | "evaluationExampleId" | "predictedIntentId" | "inputText" | "draftReply" | "shouldEscalate" | "escalationReason" | "model" | "latencyMs" | "createdAt", ExtArgs["result"]["agentRun"]>
+  export type AgentRunOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "datasetId" | "conversationId" | "evaluationExampleId" | "predictedIntentId" | "inputText" | "draftReply" | "shouldEscalate" | "escalationReason" | "model" | "latencyMs" | "createdAt", ExtArgs["result"]["agentRun"]>
   export type AgentRunInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dataset?: boolean | AgentRun$datasetArgs<ExtArgs>
     conversation?: boolean | AgentRun$conversationArgs<ExtArgs>
     evaluationExample?: boolean | AgentRun$evaluationExampleArgs<ExtArgs>
     predictedIntent?: boolean | AgentRun$predictedIntentArgs<ExtArgs>
@@ -16017,11 +17433,13 @@ export namespace Prisma {
     _count?: boolean | AgentRunCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type AgentRunIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dataset?: boolean | AgentRun$datasetArgs<ExtArgs>
     conversation?: boolean | AgentRun$conversationArgs<ExtArgs>
     evaluationExample?: boolean | AgentRun$evaluationExampleArgs<ExtArgs>
     predictedIntent?: boolean | AgentRun$predictedIntentArgs<ExtArgs>
   }
   export type AgentRunIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dataset?: boolean | AgentRun$datasetArgs<ExtArgs>
     conversation?: boolean | AgentRun$conversationArgs<ExtArgs>
     evaluationExample?: boolean | AgentRun$evaluationExampleArgs<ExtArgs>
     predictedIntent?: boolean | AgentRun$predictedIntentArgs<ExtArgs>
@@ -16030,6 +17448,7 @@ export namespace Prisma {
   export type $AgentRunPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AgentRun"
     objects: {
+      dataset: Prisma.$DatasetPayload<ExtArgs> | null
       conversation: Prisma.$ConversationPayload<ExtArgs> | null
       evaluationExample: Prisma.$EvaluationExamplePayload<ExtArgs> | null
       predictedIntent: Prisma.$IntentPayload<ExtArgs> | null
@@ -16037,6 +17456,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      datasetId: string | null
       conversationId: string | null
       evaluationExampleId: string | null
       predictedIntentId: string | null
@@ -16441,6 +17861,7 @@ export namespace Prisma {
    */
   export interface Prisma__AgentRunClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    dataset<T extends AgentRun$datasetArgs<ExtArgs> = {}>(args?: Subset<T, AgentRun$datasetArgs<ExtArgs>>): Prisma__DatasetClient<$Result.GetResult<Prisma.$DatasetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     conversation<T extends AgentRun$conversationArgs<ExtArgs> = {}>(args?: Subset<T, AgentRun$conversationArgs<ExtArgs>>): Prisma__ConversationClient<$Result.GetResult<Prisma.$ConversationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     evaluationExample<T extends AgentRun$evaluationExampleArgs<ExtArgs> = {}>(args?: Subset<T, AgentRun$evaluationExampleArgs<ExtArgs>>): Prisma__EvaluationExampleClient<$Result.GetResult<Prisma.$EvaluationExamplePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     predictedIntent<T extends AgentRun$predictedIntentArgs<ExtArgs> = {}>(args?: Subset<T, AgentRun$predictedIntentArgs<ExtArgs>>): Prisma__IntentClient<$Result.GetResult<Prisma.$IntentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -16475,6 +17896,7 @@ export namespace Prisma {
    */
   interface AgentRunFieldRefs {
     readonly id: FieldRef<"AgentRun", 'String'>
+    readonly datasetId: FieldRef<"AgentRun", 'String'>
     readonly conversationId: FieldRef<"AgentRun", 'String'>
     readonly evaluationExampleId: FieldRef<"AgentRun", 'String'>
     readonly predictedIntentId: FieldRef<"AgentRun", 'String'>
@@ -16878,6 +18300,25 @@ export namespace Prisma {
      * Limit how many AgentRuns to delete.
      */
     limit?: number
+  }
+
+  /**
+   * AgentRun.dataset
+   */
+  export type AgentRun$datasetArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dataset
+     */
+    select?: DatasetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Dataset
+     */
+    omit?: DatasetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DatasetInclude<ExtArgs> | null
+    where?: DatasetWhereInput
   }
 
   /**
@@ -18163,8 +19604,23 @@ export namespace Prisma {
   export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
 
 
+  export const DatasetScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    name: 'name',
+    rawData: 'rawData',
+    status: 'status',
+    errorMessage: 'errorMessage',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DatasetScalarFieldEnum = (typeof DatasetScalarFieldEnum)[keyof typeof DatasetScalarFieldEnum]
+
+
   export const BrandScalarFieldEnum: {
     id: 'id',
+    datasetId: 'datasetId',
     name: 'name',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -18249,6 +19705,7 @@ export namespace Prisma {
 
   export const AgentRunScalarFieldEnum: {
     id: 'id',
+    datasetId: 'datasetId',
     conversationId: 'conversationId',
     evaluationExampleId: 'evaluationExampleId',
     predictedIntentId: 'predictedIntentId',
@@ -18283,6 +19740,14 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
   export const QueryMode: {
     default: 'default',
     insensitive: 'insensitive'
@@ -18297,6 +19762,15 @@ export namespace Prisma {
   };
 
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
   /**
@@ -18336,6 +19810,34 @@ export namespace Prisma {
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'DatasetStatus'
+   */
+  export type EnumDatasetStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DatasetStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'DatasetStatus[]'
+   */
+  export type ListEnumDatasetStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DatasetStatus[]'>
     
 
 
@@ -18453,6 +19955,7 @@ export namespace Prisma {
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     posts?: PostListRelationFilter
+    datasets?: DatasetListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -18466,6 +19969,7 @@ export namespace Prisma {
     sessions?: SessionOrderByRelationAggregateInput
     accounts?: AccountOrderByRelationAggregateInput
     posts?: PostOrderByRelationAggregateInput
+    datasets?: DatasetOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -18482,6 +19986,7 @@ export namespace Prisma {
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     posts?: PostListRelationFilter
+    datasets?: DatasetListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -18732,14 +20237,92 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Verification"> | Date | string
   }
 
+  export type DatasetWhereInput = {
+    AND?: DatasetWhereInput | DatasetWhereInput[]
+    OR?: DatasetWhereInput[]
+    NOT?: DatasetWhereInput | DatasetWhereInput[]
+    id?: StringFilter<"Dataset"> | string
+    userId?: StringNullableFilter<"Dataset"> | string | null
+    name?: StringFilter<"Dataset"> | string
+    rawData?: JsonNullableFilter<"Dataset">
+    status?: EnumDatasetStatusFilter<"Dataset"> | $Enums.DatasetStatus
+    errorMessage?: StringNullableFilter<"Dataset"> | string | null
+    createdAt?: DateTimeFilter<"Dataset"> | Date | string
+    updatedAt?: DateTimeFilter<"Dataset"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    brands?: BrandListRelationFilter
+    agentRuns?: AgentRunListRelationFilter
+  }
+
+  export type DatasetOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    name?: SortOrder
+    rawData?: SortOrderInput | SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    brands?: BrandOrderByRelationAggregateInput
+    agentRuns?: AgentRunOrderByRelationAggregateInput
+  }
+
+  export type DatasetWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: DatasetWhereInput | DatasetWhereInput[]
+    OR?: DatasetWhereInput[]
+    NOT?: DatasetWhereInput | DatasetWhereInput[]
+    userId?: StringNullableFilter<"Dataset"> | string | null
+    name?: StringFilter<"Dataset"> | string
+    rawData?: JsonNullableFilter<"Dataset">
+    status?: EnumDatasetStatusFilter<"Dataset"> | $Enums.DatasetStatus
+    errorMessage?: StringNullableFilter<"Dataset"> | string | null
+    createdAt?: DateTimeFilter<"Dataset"> | Date | string
+    updatedAt?: DateTimeFilter<"Dataset"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    brands?: BrandListRelationFilter
+    agentRuns?: AgentRunListRelationFilter
+  }, "id">
+
+  export type DatasetOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    name?: SortOrder
+    rawData?: SortOrderInput | SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DatasetCountOrderByAggregateInput
+    _max?: DatasetMaxOrderByAggregateInput
+    _min?: DatasetMinOrderByAggregateInput
+  }
+
+  export type DatasetScalarWhereWithAggregatesInput = {
+    AND?: DatasetScalarWhereWithAggregatesInput | DatasetScalarWhereWithAggregatesInput[]
+    OR?: DatasetScalarWhereWithAggregatesInput[]
+    NOT?: DatasetScalarWhereWithAggregatesInput | DatasetScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Dataset"> | string
+    userId?: StringNullableWithAggregatesFilter<"Dataset"> | string | null
+    name?: StringWithAggregatesFilter<"Dataset"> | string
+    rawData?: JsonNullableWithAggregatesFilter<"Dataset">
+    status?: EnumDatasetStatusWithAggregatesFilter<"Dataset"> | $Enums.DatasetStatus
+    errorMessage?: StringNullableWithAggregatesFilter<"Dataset"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Dataset"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Dataset"> | Date | string
+  }
+
   export type BrandWhereInput = {
     AND?: BrandWhereInput | BrandWhereInput[]
     OR?: BrandWhereInput[]
     NOT?: BrandWhereInput | BrandWhereInput[]
     id?: StringFilter<"Brand"> | string
+    datasetId?: StringNullableFilter<"Brand"> | string | null
     name?: StringFilter<"Brand"> | string
     createdAt?: DateTimeFilter<"Brand"> | Date | string
     updatedAt?: DateTimeFilter<"Brand"> | Date | string
+    dataset?: XOR<DatasetNullableScalarRelationFilter, DatasetWhereInput> | null
     customers?: CustomerListRelationFilter
     conversations?: ConversationListRelationFilter
     intents?: IntentListRelationFilter
@@ -18747,9 +20330,11 @@ export namespace Prisma {
 
   export type BrandOrderByWithRelationInput = {
     id?: SortOrder
+    datasetId?: SortOrderInput | SortOrder
     name?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    dataset?: DatasetOrderByWithRelationInput
     customers?: CustomerOrderByRelationAggregateInput
     conversations?: ConversationOrderByRelationAggregateInput
     intents?: IntentOrderByRelationAggregateInput
@@ -18760,9 +20345,11 @@ export namespace Prisma {
     AND?: BrandWhereInput | BrandWhereInput[]
     OR?: BrandWhereInput[]
     NOT?: BrandWhereInput | BrandWhereInput[]
+    datasetId?: StringNullableFilter<"Brand"> | string | null
     name?: StringFilter<"Brand"> | string
     createdAt?: DateTimeFilter<"Brand"> | Date | string
     updatedAt?: DateTimeFilter<"Brand"> | Date | string
+    dataset?: XOR<DatasetNullableScalarRelationFilter, DatasetWhereInput> | null
     customers?: CustomerListRelationFilter
     conversations?: ConversationListRelationFilter
     intents?: IntentListRelationFilter
@@ -18770,6 +20357,7 @@ export namespace Prisma {
 
   export type BrandOrderByWithAggregationInput = {
     id?: SortOrder
+    datasetId?: SortOrderInput | SortOrder
     name?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18783,6 +20371,7 @@ export namespace Prisma {
     OR?: BrandScalarWhereWithAggregatesInput[]
     NOT?: BrandScalarWhereWithAggregatesInput | BrandScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Brand"> | string
+    datasetId?: StringNullableWithAggregatesFilter<"Brand"> | string | null
     name?: StringWithAggregatesFilter<"Brand"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Brand"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Brand"> | Date | string
@@ -19191,6 +20780,7 @@ export namespace Prisma {
     OR?: AgentRunWhereInput[]
     NOT?: AgentRunWhereInput | AgentRunWhereInput[]
     id?: StringFilter<"AgentRun"> | string
+    datasetId?: StringNullableFilter<"AgentRun"> | string | null
     conversationId?: StringNullableFilter<"AgentRun"> | string | null
     evaluationExampleId?: StringNullableFilter<"AgentRun"> | string | null
     predictedIntentId?: StringNullableFilter<"AgentRun"> | string | null
@@ -19201,6 +20791,7 @@ export namespace Prisma {
     model?: StringNullableFilter<"AgentRun"> | string | null
     latencyMs?: IntNullableFilter<"AgentRun"> | number | null
     createdAt?: DateTimeFilter<"AgentRun"> | Date | string
+    dataset?: XOR<DatasetNullableScalarRelationFilter, DatasetWhereInput> | null
     conversation?: XOR<ConversationNullableScalarRelationFilter, ConversationWhereInput> | null
     evaluationExample?: XOR<EvaluationExampleNullableScalarRelationFilter, EvaluationExampleWhereInput> | null
     predictedIntent?: XOR<IntentNullableScalarRelationFilter, IntentWhereInput> | null
@@ -19209,6 +20800,7 @@ export namespace Prisma {
 
   export type AgentRunOrderByWithRelationInput = {
     id?: SortOrder
+    datasetId?: SortOrderInput | SortOrder
     conversationId?: SortOrderInput | SortOrder
     evaluationExampleId?: SortOrderInput | SortOrder
     predictedIntentId?: SortOrderInput | SortOrder
@@ -19219,6 +20811,7 @@ export namespace Prisma {
     model?: SortOrderInput | SortOrder
     latencyMs?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    dataset?: DatasetOrderByWithRelationInput
     conversation?: ConversationOrderByWithRelationInput
     evaluationExample?: EvaluationExampleOrderByWithRelationInput
     predictedIntent?: IntentOrderByWithRelationInput
@@ -19230,6 +20823,7 @@ export namespace Prisma {
     AND?: AgentRunWhereInput | AgentRunWhereInput[]
     OR?: AgentRunWhereInput[]
     NOT?: AgentRunWhereInput | AgentRunWhereInput[]
+    datasetId?: StringNullableFilter<"AgentRun"> | string | null
     conversationId?: StringNullableFilter<"AgentRun"> | string | null
     evaluationExampleId?: StringNullableFilter<"AgentRun"> | string | null
     predictedIntentId?: StringNullableFilter<"AgentRun"> | string | null
@@ -19240,6 +20834,7 @@ export namespace Prisma {
     model?: StringNullableFilter<"AgentRun"> | string | null
     latencyMs?: IntNullableFilter<"AgentRun"> | number | null
     createdAt?: DateTimeFilter<"AgentRun"> | Date | string
+    dataset?: XOR<DatasetNullableScalarRelationFilter, DatasetWhereInput> | null
     conversation?: XOR<ConversationNullableScalarRelationFilter, ConversationWhereInput> | null
     evaluationExample?: XOR<EvaluationExampleNullableScalarRelationFilter, EvaluationExampleWhereInput> | null
     predictedIntent?: XOR<IntentNullableScalarRelationFilter, IntentWhereInput> | null
@@ -19248,6 +20843,7 @@ export namespace Prisma {
 
   export type AgentRunOrderByWithAggregationInput = {
     id?: SortOrder
+    datasetId?: SortOrderInput | SortOrder
     conversationId?: SortOrderInput | SortOrder
     evaluationExampleId?: SortOrderInput | SortOrder
     predictedIntentId?: SortOrderInput | SortOrder
@@ -19270,6 +20866,7 @@ export namespace Prisma {
     OR?: AgentRunScalarWhereWithAggregatesInput[]
     NOT?: AgentRunScalarWhereWithAggregatesInput | AgentRunScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"AgentRun"> | string
+    datasetId?: StringNullableWithAggregatesFilter<"AgentRun"> | string | null
     conversationId?: StringNullableWithAggregatesFilter<"AgentRun"> | string | null
     evaluationExampleId?: StringNullableWithAggregatesFilter<"AgentRun"> | string | null
     predictedIntentId?: StringNullableWithAggregatesFilter<"AgentRun"> | string | null
@@ -19408,6 +21005,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     posts?: PostCreateNestedManyWithoutCreatedByInput
+    datasets?: DatasetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -19421,6 +21019,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     posts?: PostUncheckedCreateNestedManyWithoutCreatedByInput
+    datasets?: DatasetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -19434,6 +21033,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     posts?: PostUpdateManyWithoutCreatedByNestedInput
+    datasets?: DatasetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -19447,6 +21047,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     posts?: PostUncheckedUpdateManyWithoutCreatedByNestedInput
+    datasets?: DatasetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -19729,11 +21330,96 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type DatasetCreateInput = {
+    id?: string
+    name: string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.DatasetStatus
+    errorMessage?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user?: UserCreateNestedOneWithoutDatasetsInput
+    brands?: BrandCreateNestedManyWithoutDatasetInput
+    agentRuns?: AgentRunCreateNestedManyWithoutDatasetInput
+  }
+
+  export type DatasetUncheckedCreateInput = {
+    id?: string
+    userId?: string | null
+    name: string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.DatasetStatus
+    errorMessage?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    brands?: BrandUncheckedCreateNestedManyWithoutDatasetInput
+    agentRuns?: AgentRunUncheckedCreateNestedManyWithoutDatasetInput
+  }
+
+  export type DatasetUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutDatasetsNestedInput
+    brands?: BrandUpdateManyWithoutDatasetNestedInput
+    agentRuns?: AgentRunUpdateManyWithoutDatasetNestedInput
+  }
+
+  export type DatasetUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    brands?: BrandUncheckedUpdateManyWithoutDatasetNestedInput
+    agentRuns?: AgentRunUncheckedUpdateManyWithoutDatasetNestedInput
+  }
+
+  export type DatasetCreateManyInput = {
+    id?: string
+    userId?: string | null
+    name: string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.DatasetStatus
+    errorMessage?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DatasetUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DatasetUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type BrandCreateInput = {
     id?: string
     name: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    dataset?: DatasetCreateNestedOneWithoutBrandsInput
     customers?: CustomerCreateNestedManyWithoutBrandInput
     conversations?: ConversationCreateNestedManyWithoutBrandInput
     intents?: IntentCreateNestedManyWithoutBrandInput
@@ -19741,6 +21427,7 @@ export namespace Prisma {
 
   export type BrandUncheckedCreateInput = {
     id?: string
+    datasetId?: string | null
     name: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19754,6 +21441,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataset?: DatasetUpdateOneWithoutBrandsNestedInput
     customers?: CustomerUpdateManyWithoutBrandNestedInput
     conversations?: ConversationUpdateManyWithoutBrandNestedInput
     intents?: IntentUpdateManyWithoutBrandNestedInput
@@ -19761,6 +21449,7 @@ export namespace Prisma {
 
   export type BrandUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -19771,6 +21460,7 @@ export namespace Prisma {
 
   export type BrandCreateManyInput = {
     id?: string
+    datasetId?: string | null
     name: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19785,6 +21475,7 @@ export namespace Prisma {
 
   export type BrandUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20216,6 +21907,7 @@ export namespace Prisma {
     model?: string | null
     latencyMs?: number | null
     createdAt?: Date | string
+    dataset?: DatasetCreateNestedOneWithoutAgentRunsInput
     conversation?: ConversationCreateNestedOneWithoutAgentRunsInput
     evaluationExample?: EvaluationExampleCreateNestedOneWithoutAgentRunsInput
     predictedIntent?: IntentCreateNestedOneWithoutAgentRunsInput
@@ -20224,6 +21916,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedCreateInput = {
     id?: string
+    datasetId?: string | null
     conversationId?: string | null
     evaluationExampleId?: string | null
     predictedIntentId?: string | null
@@ -20246,6 +21939,7 @@ export namespace Prisma {
     model?: NullableStringFieldUpdateOperationsInput | string | null
     latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataset?: DatasetUpdateOneWithoutAgentRunsNestedInput
     conversation?: ConversationUpdateOneWithoutAgentRunsNestedInput
     evaluationExample?: EvaluationExampleUpdateOneWithoutAgentRunsNestedInput
     predictedIntent?: IntentUpdateOneWithoutAgentRunsNestedInput
@@ -20254,6 +21948,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     conversationId?: NullableStringFieldUpdateOperationsInput | string | null
     evaluationExampleId?: NullableStringFieldUpdateOperationsInput | string | null
     predictedIntentId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20269,6 +21964,7 @@ export namespace Prisma {
 
   export type AgentRunCreateManyInput = {
     id?: string
+    datasetId?: string | null
     conversationId?: string | null
     evaluationExampleId?: string | null
     predictedIntentId?: string | null
@@ -20294,6 +21990,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     conversationId?: NullableStringFieldUpdateOperationsInput | string | null
     evaluationExampleId?: NullableStringFieldUpdateOperationsInput | string | null
     predictedIntentId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20485,6 +22182,12 @@ export namespace Prisma {
     none?: PostWhereInput
   }
 
+  export type DatasetListRelationFilter = {
+    every?: DatasetWhereInput
+    some?: DatasetWhereInput
+    none?: DatasetWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -20499,6 +22202,10 @@ export namespace Prisma {
   }
 
   export type PostOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DatasetOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -20690,6 +22397,133 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type EnumDatasetStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DatasetStatus | EnumDatasetStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DatasetStatus[] | ListEnumDatasetStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DatasetStatus[] | ListEnumDatasetStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDatasetStatusFilter<$PrismaModel> | $Enums.DatasetStatus
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type BrandListRelationFilter = {
+    every?: BrandWhereInput
+    some?: BrandWhereInput
+    none?: BrandWhereInput
+  }
+
+  export type AgentRunListRelationFilter = {
+    every?: AgentRunWhereInput
+    some?: AgentRunWhereInput
+    none?: AgentRunWhereInput
+  }
+
+  export type BrandOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AgentRunOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DatasetCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    rawData?: SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DatasetMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DatasetMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type EnumDatasetStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DatasetStatus | EnumDatasetStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DatasetStatus[] | ListEnumDatasetStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DatasetStatus[] | ListEnumDatasetStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDatasetStatusWithAggregatesFilter<$PrismaModel> | $Enums.DatasetStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDatasetStatusFilter<$PrismaModel>
+    _max?: NestedEnumDatasetStatusFilter<$PrismaModel>
+  }
+
+  export type DatasetNullableScalarRelationFilter = {
+    is?: DatasetWhereInput | null
+    isNot?: DatasetWhereInput | null
+  }
 
   export type CustomerListRelationFilter = {
     every?: CustomerWhereInput
@@ -20723,6 +22557,7 @@ export namespace Prisma {
 
   export type BrandCountOrderByAggregateInput = {
     id?: SortOrder
+    datasetId?: SortOrder
     name?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -20730,6 +22565,7 @@ export namespace Prisma {
 
   export type BrandMaxOrderByAggregateInput = {
     id?: SortOrder
+    datasetId?: SortOrder
     name?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -20737,6 +22573,7 @@ export namespace Prisma {
 
   export type BrandMinOrderByAggregateInput = {
     id?: SortOrder
+    datasetId?: SortOrder
     name?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -20785,17 +22622,7 @@ export namespace Prisma {
     none?: MessageWhereInput
   }
 
-  export type AgentRunListRelationFilter = {
-    every?: AgentRunWhereInput
-    some?: AgentRunWhereInput
-    none?: AgentRunWhereInput
-  }
-
   export type MessageOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type AgentRunOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -21020,6 +22847,7 @@ export namespace Prisma {
 
   export type AgentRunCountOrderByAggregateInput = {
     id?: SortOrder
+    datasetId?: SortOrder
     conversationId?: SortOrder
     evaluationExampleId?: SortOrder
     predictedIntentId?: SortOrder
@@ -21038,6 +22866,7 @@ export namespace Prisma {
 
   export type AgentRunMaxOrderByAggregateInput = {
     id?: SortOrder
+    datasetId?: SortOrder
     conversationId?: SortOrder
     evaluationExampleId?: SortOrder
     predictedIntentId?: SortOrder
@@ -21052,6 +22881,7 @@ export namespace Prisma {
 
   export type AgentRunMinOrderByAggregateInput = {
     id?: SortOrder
+    datasetId?: SortOrder
     conversationId?: SortOrder
     evaluationExampleId?: SortOrder
     predictedIntentId?: SortOrder
@@ -21196,6 +23026,13 @@ export namespace Prisma {
     connect?: PostWhereUniqueInput | PostWhereUniqueInput[]
   }
 
+  export type DatasetCreateNestedManyWithoutUserInput = {
+    create?: XOR<DatasetCreateWithoutUserInput, DatasetUncheckedCreateWithoutUserInput> | DatasetCreateWithoutUserInput[] | DatasetUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DatasetCreateOrConnectWithoutUserInput | DatasetCreateOrConnectWithoutUserInput[]
+    createMany?: DatasetCreateManyUserInputEnvelope
+    connect?: DatasetWhereUniqueInput | DatasetWhereUniqueInput[]
+  }
+
   export type SessionUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -21215,6 +23052,13 @@ export namespace Prisma {
     connectOrCreate?: PostCreateOrConnectWithoutCreatedByInput | PostCreateOrConnectWithoutCreatedByInput[]
     createMany?: PostCreateManyCreatedByInputEnvelope
     connect?: PostWhereUniqueInput | PostWhereUniqueInput[]
+  }
+
+  export type DatasetUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<DatasetCreateWithoutUserInput, DatasetUncheckedCreateWithoutUserInput> | DatasetCreateWithoutUserInput[] | DatasetUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DatasetCreateOrConnectWithoutUserInput | DatasetCreateOrConnectWithoutUserInput[]
+    createMany?: DatasetCreateManyUserInputEnvelope
+    connect?: DatasetWhereUniqueInput | DatasetWhereUniqueInput[]
   }
 
   export type BoolFieldUpdateOperationsInput = {
@@ -21267,6 +23111,20 @@ export namespace Prisma {
     deleteMany?: PostScalarWhereInput | PostScalarWhereInput[]
   }
 
+  export type DatasetUpdateManyWithoutUserNestedInput = {
+    create?: XOR<DatasetCreateWithoutUserInput, DatasetUncheckedCreateWithoutUserInput> | DatasetCreateWithoutUserInput[] | DatasetUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DatasetCreateOrConnectWithoutUserInput | DatasetCreateOrConnectWithoutUserInput[]
+    upsert?: DatasetUpsertWithWhereUniqueWithoutUserInput | DatasetUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: DatasetCreateManyUserInputEnvelope
+    set?: DatasetWhereUniqueInput | DatasetWhereUniqueInput[]
+    disconnect?: DatasetWhereUniqueInput | DatasetWhereUniqueInput[]
+    delete?: DatasetWhereUniqueInput | DatasetWhereUniqueInput[]
+    connect?: DatasetWhereUniqueInput | DatasetWhereUniqueInput[]
+    update?: DatasetUpdateWithWhereUniqueWithoutUserInput | DatasetUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: DatasetUpdateManyWithWhereWithoutUserInput | DatasetUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: DatasetScalarWhereInput | DatasetScalarWhereInput[]
+  }
+
   export type SessionUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -21309,6 +23167,20 @@ export namespace Prisma {
     deleteMany?: PostScalarWhereInput | PostScalarWhereInput[]
   }
 
+  export type DatasetUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<DatasetCreateWithoutUserInput, DatasetUncheckedCreateWithoutUserInput> | DatasetCreateWithoutUserInput[] | DatasetUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DatasetCreateOrConnectWithoutUserInput | DatasetCreateOrConnectWithoutUserInput[]
+    upsert?: DatasetUpsertWithWhereUniqueWithoutUserInput | DatasetUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: DatasetCreateManyUserInputEnvelope
+    set?: DatasetWhereUniqueInput | DatasetWhereUniqueInput[]
+    disconnect?: DatasetWhereUniqueInput | DatasetWhereUniqueInput[]
+    delete?: DatasetWhereUniqueInput | DatasetWhereUniqueInput[]
+    connect?: DatasetWhereUniqueInput | DatasetWhereUniqueInput[]
+    update?: DatasetUpdateWithWhereUniqueWithoutUserInput | DatasetUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: DatasetUpdateManyWithWhereWithoutUserInput | DatasetUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: DatasetScalarWhereInput | DatasetScalarWhereInput[]
+  }
+
   export type UserCreateNestedOneWithoutSessionsInput = {
     create?: XOR<UserCreateWithoutSessionsInput, UserUncheckedCreateWithoutSessionsInput>
     connectOrCreate?: UserCreateOrConnectWithoutSessionsInput
@@ -21339,6 +23211,116 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutAccountsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAccountsInput, UserUpdateWithoutAccountsInput>, UserUncheckedUpdateWithoutAccountsInput>
+  }
+
+  export type UserCreateNestedOneWithoutDatasetsInput = {
+    create?: XOR<UserCreateWithoutDatasetsInput, UserUncheckedCreateWithoutDatasetsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDatasetsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type BrandCreateNestedManyWithoutDatasetInput = {
+    create?: XOR<BrandCreateWithoutDatasetInput, BrandUncheckedCreateWithoutDatasetInput> | BrandCreateWithoutDatasetInput[] | BrandUncheckedCreateWithoutDatasetInput[]
+    connectOrCreate?: BrandCreateOrConnectWithoutDatasetInput | BrandCreateOrConnectWithoutDatasetInput[]
+    createMany?: BrandCreateManyDatasetInputEnvelope
+    connect?: BrandWhereUniqueInput | BrandWhereUniqueInput[]
+  }
+
+  export type AgentRunCreateNestedManyWithoutDatasetInput = {
+    create?: XOR<AgentRunCreateWithoutDatasetInput, AgentRunUncheckedCreateWithoutDatasetInput> | AgentRunCreateWithoutDatasetInput[] | AgentRunUncheckedCreateWithoutDatasetInput[]
+    connectOrCreate?: AgentRunCreateOrConnectWithoutDatasetInput | AgentRunCreateOrConnectWithoutDatasetInput[]
+    createMany?: AgentRunCreateManyDatasetInputEnvelope
+    connect?: AgentRunWhereUniqueInput | AgentRunWhereUniqueInput[]
+  }
+
+  export type BrandUncheckedCreateNestedManyWithoutDatasetInput = {
+    create?: XOR<BrandCreateWithoutDatasetInput, BrandUncheckedCreateWithoutDatasetInput> | BrandCreateWithoutDatasetInput[] | BrandUncheckedCreateWithoutDatasetInput[]
+    connectOrCreate?: BrandCreateOrConnectWithoutDatasetInput | BrandCreateOrConnectWithoutDatasetInput[]
+    createMany?: BrandCreateManyDatasetInputEnvelope
+    connect?: BrandWhereUniqueInput | BrandWhereUniqueInput[]
+  }
+
+  export type AgentRunUncheckedCreateNestedManyWithoutDatasetInput = {
+    create?: XOR<AgentRunCreateWithoutDatasetInput, AgentRunUncheckedCreateWithoutDatasetInput> | AgentRunCreateWithoutDatasetInput[] | AgentRunUncheckedCreateWithoutDatasetInput[]
+    connectOrCreate?: AgentRunCreateOrConnectWithoutDatasetInput | AgentRunCreateOrConnectWithoutDatasetInput[]
+    createMany?: AgentRunCreateManyDatasetInputEnvelope
+    connect?: AgentRunWhereUniqueInput | AgentRunWhereUniqueInput[]
+  }
+
+  export type EnumDatasetStatusFieldUpdateOperationsInput = {
+    set?: $Enums.DatasetStatus
+  }
+
+  export type UserUpdateOneWithoutDatasetsNestedInput = {
+    create?: XOR<UserCreateWithoutDatasetsInput, UserUncheckedCreateWithoutDatasetsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDatasetsInput
+    upsert?: UserUpsertWithoutDatasetsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDatasetsInput, UserUpdateWithoutDatasetsInput>, UserUncheckedUpdateWithoutDatasetsInput>
+  }
+
+  export type BrandUpdateManyWithoutDatasetNestedInput = {
+    create?: XOR<BrandCreateWithoutDatasetInput, BrandUncheckedCreateWithoutDatasetInput> | BrandCreateWithoutDatasetInput[] | BrandUncheckedCreateWithoutDatasetInput[]
+    connectOrCreate?: BrandCreateOrConnectWithoutDatasetInput | BrandCreateOrConnectWithoutDatasetInput[]
+    upsert?: BrandUpsertWithWhereUniqueWithoutDatasetInput | BrandUpsertWithWhereUniqueWithoutDatasetInput[]
+    createMany?: BrandCreateManyDatasetInputEnvelope
+    set?: BrandWhereUniqueInput | BrandWhereUniqueInput[]
+    disconnect?: BrandWhereUniqueInput | BrandWhereUniqueInput[]
+    delete?: BrandWhereUniqueInput | BrandWhereUniqueInput[]
+    connect?: BrandWhereUniqueInput | BrandWhereUniqueInput[]
+    update?: BrandUpdateWithWhereUniqueWithoutDatasetInput | BrandUpdateWithWhereUniqueWithoutDatasetInput[]
+    updateMany?: BrandUpdateManyWithWhereWithoutDatasetInput | BrandUpdateManyWithWhereWithoutDatasetInput[]
+    deleteMany?: BrandScalarWhereInput | BrandScalarWhereInput[]
+  }
+
+  export type AgentRunUpdateManyWithoutDatasetNestedInput = {
+    create?: XOR<AgentRunCreateWithoutDatasetInput, AgentRunUncheckedCreateWithoutDatasetInput> | AgentRunCreateWithoutDatasetInput[] | AgentRunUncheckedCreateWithoutDatasetInput[]
+    connectOrCreate?: AgentRunCreateOrConnectWithoutDatasetInput | AgentRunCreateOrConnectWithoutDatasetInput[]
+    upsert?: AgentRunUpsertWithWhereUniqueWithoutDatasetInput | AgentRunUpsertWithWhereUniqueWithoutDatasetInput[]
+    createMany?: AgentRunCreateManyDatasetInputEnvelope
+    set?: AgentRunWhereUniqueInput | AgentRunWhereUniqueInput[]
+    disconnect?: AgentRunWhereUniqueInput | AgentRunWhereUniqueInput[]
+    delete?: AgentRunWhereUniqueInput | AgentRunWhereUniqueInput[]
+    connect?: AgentRunWhereUniqueInput | AgentRunWhereUniqueInput[]
+    update?: AgentRunUpdateWithWhereUniqueWithoutDatasetInput | AgentRunUpdateWithWhereUniqueWithoutDatasetInput[]
+    updateMany?: AgentRunUpdateManyWithWhereWithoutDatasetInput | AgentRunUpdateManyWithWhereWithoutDatasetInput[]
+    deleteMany?: AgentRunScalarWhereInput | AgentRunScalarWhereInput[]
+  }
+
+  export type BrandUncheckedUpdateManyWithoutDatasetNestedInput = {
+    create?: XOR<BrandCreateWithoutDatasetInput, BrandUncheckedCreateWithoutDatasetInput> | BrandCreateWithoutDatasetInput[] | BrandUncheckedCreateWithoutDatasetInput[]
+    connectOrCreate?: BrandCreateOrConnectWithoutDatasetInput | BrandCreateOrConnectWithoutDatasetInput[]
+    upsert?: BrandUpsertWithWhereUniqueWithoutDatasetInput | BrandUpsertWithWhereUniqueWithoutDatasetInput[]
+    createMany?: BrandCreateManyDatasetInputEnvelope
+    set?: BrandWhereUniqueInput | BrandWhereUniqueInput[]
+    disconnect?: BrandWhereUniqueInput | BrandWhereUniqueInput[]
+    delete?: BrandWhereUniqueInput | BrandWhereUniqueInput[]
+    connect?: BrandWhereUniqueInput | BrandWhereUniqueInput[]
+    update?: BrandUpdateWithWhereUniqueWithoutDatasetInput | BrandUpdateWithWhereUniqueWithoutDatasetInput[]
+    updateMany?: BrandUpdateManyWithWhereWithoutDatasetInput | BrandUpdateManyWithWhereWithoutDatasetInput[]
+    deleteMany?: BrandScalarWhereInput | BrandScalarWhereInput[]
+  }
+
+  export type AgentRunUncheckedUpdateManyWithoutDatasetNestedInput = {
+    create?: XOR<AgentRunCreateWithoutDatasetInput, AgentRunUncheckedCreateWithoutDatasetInput> | AgentRunCreateWithoutDatasetInput[] | AgentRunUncheckedCreateWithoutDatasetInput[]
+    connectOrCreate?: AgentRunCreateOrConnectWithoutDatasetInput | AgentRunCreateOrConnectWithoutDatasetInput[]
+    upsert?: AgentRunUpsertWithWhereUniqueWithoutDatasetInput | AgentRunUpsertWithWhereUniqueWithoutDatasetInput[]
+    createMany?: AgentRunCreateManyDatasetInputEnvelope
+    set?: AgentRunWhereUniqueInput | AgentRunWhereUniqueInput[]
+    disconnect?: AgentRunWhereUniqueInput | AgentRunWhereUniqueInput[]
+    delete?: AgentRunWhereUniqueInput | AgentRunWhereUniqueInput[]
+    connect?: AgentRunWhereUniqueInput | AgentRunWhereUniqueInput[]
+    update?: AgentRunUpdateWithWhereUniqueWithoutDatasetInput | AgentRunUpdateWithWhereUniqueWithoutDatasetInput[]
+    updateMany?: AgentRunUpdateManyWithWhereWithoutDatasetInput | AgentRunUpdateManyWithWhereWithoutDatasetInput[]
+    deleteMany?: AgentRunScalarWhereInput | AgentRunScalarWhereInput[]
+  }
+
+  export type DatasetCreateNestedOneWithoutBrandsInput = {
+    create?: XOR<DatasetCreateWithoutBrandsInput, DatasetUncheckedCreateWithoutBrandsInput>
+    connectOrCreate?: DatasetCreateOrConnectWithoutBrandsInput
+    connect?: DatasetWhereUniqueInput
   }
 
   export type CustomerCreateNestedManyWithoutBrandInput = {
@@ -21381,6 +23363,16 @@ export namespace Prisma {
     connectOrCreate?: IntentCreateOrConnectWithoutBrandInput | IntentCreateOrConnectWithoutBrandInput[]
     createMany?: IntentCreateManyBrandInputEnvelope
     connect?: IntentWhereUniqueInput | IntentWhereUniqueInput[]
+  }
+
+  export type DatasetUpdateOneWithoutBrandsNestedInput = {
+    create?: XOR<DatasetCreateWithoutBrandsInput, DatasetUncheckedCreateWithoutBrandsInput>
+    connectOrCreate?: DatasetCreateOrConnectWithoutBrandsInput
+    upsert?: DatasetUpsertWithoutBrandsInput
+    disconnect?: DatasetWhereInput | boolean
+    delete?: DatasetWhereInput | boolean
+    connect?: DatasetWhereUniqueInput
+    update?: XOR<XOR<DatasetUpdateToOneWithWhereWithoutBrandsInput, DatasetUpdateWithoutBrandsInput>, DatasetUncheckedUpdateWithoutBrandsInput>
   }
 
   export type CustomerUpdateManyWithoutBrandNestedInput = {
@@ -21909,6 +23901,12 @@ export namespace Prisma {
     deleteMany?: AgentRunScalarWhereInput | AgentRunScalarWhereInput[]
   }
 
+  export type DatasetCreateNestedOneWithoutAgentRunsInput = {
+    create?: XOR<DatasetCreateWithoutAgentRunsInput, DatasetUncheckedCreateWithoutAgentRunsInput>
+    connectOrCreate?: DatasetCreateOrConnectWithoutAgentRunsInput
+    connect?: DatasetWhereUniqueInput
+  }
+
   export type ConversationCreateNestedOneWithoutAgentRunsInput = {
     create?: XOR<ConversationCreateWithoutAgentRunsInput, ConversationUncheckedCreateWithoutAgentRunsInput>
     connectOrCreate?: ConversationCreateOrConnectWithoutAgentRunsInput
@@ -21947,6 +23945,16 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type DatasetUpdateOneWithoutAgentRunsNestedInput = {
+    create?: XOR<DatasetCreateWithoutAgentRunsInput, DatasetUncheckedCreateWithoutAgentRunsInput>
+    connectOrCreate?: DatasetCreateOrConnectWithoutAgentRunsInput
+    upsert?: DatasetUpsertWithoutAgentRunsInput
+    disconnect?: DatasetWhereInput | boolean
+    delete?: DatasetWhereInput | boolean
+    connect?: DatasetWhereUniqueInput
+    update?: XOR<XOR<DatasetUpdateToOneWithWhereWithoutAgentRunsInput, DatasetUpdateWithoutAgentRunsInput>, DatasetUncheckedUpdateWithoutAgentRunsInput>
   }
 
   export type ConversationUpdateOneWithoutAgentRunsNestedInput = {
@@ -22190,6 +24198,46 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type NestedEnumDatasetStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DatasetStatus | EnumDatasetStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DatasetStatus[] | ListEnumDatasetStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DatasetStatus[] | ListEnumDatasetStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDatasetStatusFilter<$PrismaModel> | $Enums.DatasetStatus
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumDatasetStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DatasetStatus | EnumDatasetStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DatasetStatus[] | ListEnumDatasetStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DatasetStatus[] | ListEnumDatasetStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDatasetStatusWithAggregatesFilter<$PrismaModel> | $Enums.DatasetStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDatasetStatusFilter<$PrismaModel>
+    _max?: NestedEnumDatasetStatusFilter<$PrismaModel>
+  }
+
   export type NestedEnumMessageRoleFilter<$PrismaModel = never> = {
     equals?: $Enums.MessageRole | EnumMessageRoleFieldRefInput<$PrismaModel>
     in?: $Enums.MessageRole[] | ListEnumMessageRoleFieldRefInput<$PrismaModel>
@@ -22260,6 +24308,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
+    datasets?: DatasetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPostsInput = {
@@ -22272,6 +24321,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    datasets?: DatasetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPostsInput = {
@@ -22300,6 +24350,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
+    datasets?: DatasetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPostsInput = {
@@ -22312,6 +24363,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    datasets?: DatasetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type SessionCreateWithoutUserInput = {
@@ -22408,6 +24460,40 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type DatasetCreateWithoutUserInput = {
+    id?: string
+    name: string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.DatasetStatus
+    errorMessage?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    brands?: BrandCreateNestedManyWithoutDatasetInput
+    agentRuns?: AgentRunCreateNestedManyWithoutDatasetInput
+  }
+
+  export type DatasetUncheckedCreateWithoutUserInput = {
+    id?: string
+    name: string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.DatasetStatus
+    errorMessage?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    brands?: BrandUncheckedCreateNestedManyWithoutDatasetInput
+    agentRuns?: AgentRunUncheckedCreateNestedManyWithoutDatasetInput
+  }
+
+  export type DatasetCreateOrConnectWithoutUserInput = {
+    where: DatasetWhereUniqueInput
+    create: XOR<DatasetCreateWithoutUserInput, DatasetUncheckedCreateWithoutUserInput>
+  }
+
+  export type DatasetCreateManyUserInputEnvelope = {
+    data: DatasetCreateManyUserInput | DatasetCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type SessionUpsertWithWhereUniqueWithoutUserInput = {
     where: SessionWhereUniqueInput
     update: XOR<SessionUpdateWithoutUserInput, SessionUncheckedUpdateWithoutUserInput>
@@ -22500,6 +24586,36 @@ export namespace Prisma {
     createdById?: StringFilter<"Post"> | string
   }
 
+  export type DatasetUpsertWithWhereUniqueWithoutUserInput = {
+    where: DatasetWhereUniqueInput
+    update: XOR<DatasetUpdateWithoutUserInput, DatasetUncheckedUpdateWithoutUserInput>
+    create: XOR<DatasetCreateWithoutUserInput, DatasetUncheckedCreateWithoutUserInput>
+  }
+
+  export type DatasetUpdateWithWhereUniqueWithoutUserInput = {
+    where: DatasetWhereUniqueInput
+    data: XOR<DatasetUpdateWithoutUserInput, DatasetUncheckedUpdateWithoutUserInput>
+  }
+
+  export type DatasetUpdateManyWithWhereWithoutUserInput = {
+    where: DatasetScalarWhereInput
+    data: XOR<DatasetUpdateManyMutationInput, DatasetUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type DatasetScalarWhereInput = {
+    AND?: DatasetScalarWhereInput | DatasetScalarWhereInput[]
+    OR?: DatasetScalarWhereInput[]
+    NOT?: DatasetScalarWhereInput | DatasetScalarWhereInput[]
+    id?: StringFilter<"Dataset"> | string
+    userId?: StringNullableFilter<"Dataset"> | string | null
+    name?: StringFilter<"Dataset"> | string
+    rawData?: JsonNullableFilter<"Dataset">
+    status?: EnumDatasetStatusFilter<"Dataset"> | $Enums.DatasetStatus
+    errorMessage?: StringNullableFilter<"Dataset"> | string | null
+    createdAt?: DateTimeFilter<"Dataset"> | Date | string
+    updatedAt?: DateTimeFilter<"Dataset"> | Date | string
+  }
+
   export type UserCreateWithoutSessionsInput = {
     id: string
     name: string
@@ -22510,6 +24626,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     accounts?: AccountCreateNestedManyWithoutUserInput
     posts?: PostCreateNestedManyWithoutCreatedByInput
+    datasets?: DatasetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -22522,6 +24639,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     posts?: PostUncheckedCreateNestedManyWithoutCreatedByInput
+    datasets?: DatasetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -22550,6 +24668,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUpdateManyWithoutUserNestedInput
     posts?: PostUpdateManyWithoutCreatedByNestedInput
+    datasets?: DatasetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -22562,6 +24681,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     posts?: PostUncheckedUpdateManyWithoutCreatedByNestedInput
+    datasets?: DatasetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -22574,6 +24694,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     sessions?: SessionCreateNestedManyWithoutUserInput
     posts?: PostCreateNestedManyWithoutCreatedByInput
+    datasets?: DatasetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -22586,6 +24707,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     posts?: PostUncheckedCreateNestedManyWithoutCreatedByInput
+    datasets?: DatasetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -22614,6 +24736,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUpdateManyWithoutUserNestedInput
     posts?: PostUpdateManyWithoutCreatedByNestedInput
+    datasets?: DatasetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -22626,6 +24749,235 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     posts?: PostUncheckedUpdateManyWithoutCreatedByNestedInput
+    datasets?: DatasetUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutDatasetsInput = {
+    id: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    posts?: PostCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserUncheckedCreateWithoutDatasetsInput = {
+    id: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    posts?: PostUncheckedCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserCreateOrConnectWithoutDatasetsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutDatasetsInput, UserUncheckedCreateWithoutDatasetsInput>
+  }
+
+  export type BrandCreateWithoutDatasetInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    customers?: CustomerCreateNestedManyWithoutBrandInput
+    conversations?: ConversationCreateNestedManyWithoutBrandInput
+    intents?: IntentCreateNestedManyWithoutBrandInput
+  }
+
+  export type BrandUncheckedCreateWithoutDatasetInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    customers?: CustomerUncheckedCreateNestedManyWithoutBrandInput
+    conversations?: ConversationUncheckedCreateNestedManyWithoutBrandInput
+    intents?: IntentUncheckedCreateNestedManyWithoutBrandInput
+  }
+
+  export type BrandCreateOrConnectWithoutDatasetInput = {
+    where: BrandWhereUniqueInput
+    create: XOR<BrandCreateWithoutDatasetInput, BrandUncheckedCreateWithoutDatasetInput>
+  }
+
+  export type BrandCreateManyDatasetInputEnvelope = {
+    data: BrandCreateManyDatasetInput | BrandCreateManyDatasetInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AgentRunCreateWithoutDatasetInput = {
+    id?: string
+    inputText: string
+    draftReply?: string | null
+    shouldEscalate?: boolean
+    escalationReason?: string | null
+    model?: string | null
+    latencyMs?: number | null
+    createdAt?: Date | string
+    conversation?: ConversationCreateNestedOneWithoutAgentRunsInput
+    evaluationExample?: EvaluationExampleCreateNestedOneWithoutAgentRunsInput
+    predictedIntent?: IntentCreateNestedOneWithoutAgentRunsInput
+    evidence?: EvidenceCreateNestedManyWithoutAgentRunInput
+  }
+
+  export type AgentRunUncheckedCreateWithoutDatasetInput = {
+    id?: string
+    conversationId?: string | null
+    evaluationExampleId?: string | null
+    predictedIntentId?: string | null
+    inputText: string
+    draftReply?: string | null
+    shouldEscalate?: boolean
+    escalationReason?: string | null
+    model?: string | null
+    latencyMs?: number | null
+    createdAt?: Date | string
+    evidence?: EvidenceUncheckedCreateNestedManyWithoutAgentRunInput
+  }
+
+  export type AgentRunCreateOrConnectWithoutDatasetInput = {
+    where: AgentRunWhereUniqueInput
+    create: XOR<AgentRunCreateWithoutDatasetInput, AgentRunUncheckedCreateWithoutDatasetInput>
+  }
+
+  export type AgentRunCreateManyDatasetInputEnvelope = {
+    data: AgentRunCreateManyDatasetInput | AgentRunCreateManyDatasetInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutDatasetsInput = {
+    update: XOR<UserUpdateWithoutDatasetsInput, UserUncheckedUpdateWithoutDatasetsInput>
+    create: XOR<UserCreateWithoutDatasetsInput, UserUncheckedCreateWithoutDatasetsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutDatasetsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutDatasetsInput, UserUncheckedUpdateWithoutDatasetsInput>
+  }
+
+  export type UserUpdateWithoutDatasetsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    posts?: PostUpdateManyWithoutCreatedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutDatasetsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    posts?: PostUncheckedUpdateManyWithoutCreatedByNestedInput
+  }
+
+  export type BrandUpsertWithWhereUniqueWithoutDatasetInput = {
+    where: BrandWhereUniqueInput
+    update: XOR<BrandUpdateWithoutDatasetInput, BrandUncheckedUpdateWithoutDatasetInput>
+    create: XOR<BrandCreateWithoutDatasetInput, BrandUncheckedCreateWithoutDatasetInput>
+  }
+
+  export type BrandUpdateWithWhereUniqueWithoutDatasetInput = {
+    where: BrandWhereUniqueInput
+    data: XOR<BrandUpdateWithoutDatasetInput, BrandUncheckedUpdateWithoutDatasetInput>
+  }
+
+  export type BrandUpdateManyWithWhereWithoutDatasetInput = {
+    where: BrandScalarWhereInput
+    data: XOR<BrandUpdateManyMutationInput, BrandUncheckedUpdateManyWithoutDatasetInput>
+  }
+
+  export type BrandScalarWhereInput = {
+    AND?: BrandScalarWhereInput | BrandScalarWhereInput[]
+    OR?: BrandScalarWhereInput[]
+    NOT?: BrandScalarWhereInput | BrandScalarWhereInput[]
+    id?: StringFilter<"Brand"> | string
+    datasetId?: StringNullableFilter<"Brand"> | string | null
+    name?: StringFilter<"Brand"> | string
+    createdAt?: DateTimeFilter<"Brand"> | Date | string
+    updatedAt?: DateTimeFilter<"Brand"> | Date | string
+  }
+
+  export type AgentRunUpsertWithWhereUniqueWithoutDatasetInput = {
+    where: AgentRunWhereUniqueInput
+    update: XOR<AgentRunUpdateWithoutDatasetInput, AgentRunUncheckedUpdateWithoutDatasetInput>
+    create: XOR<AgentRunCreateWithoutDatasetInput, AgentRunUncheckedCreateWithoutDatasetInput>
+  }
+
+  export type AgentRunUpdateWithWhereUniqueWithoutDatasetInput = {
+    where: AgentRunWhereUniqueInput
+    data: XOR<AgentRunUpdateWithoutDatasetInput, AgentRunUncheckedUpdateWithoutDatasetInput>
+  }
+
+  export type AgentRunUpdateManyWithWhereWithoutDatasetInput = {
+    where: AgentRunScalarWhereInput
+    data: XOR<AgentRunUpdateManyMutationInput, AgentRunUncheckedUpdateManyWithoutDatasetInput>
+  }
+
+  export type AgentRunScalarWhereInput = {
+    AND?: AgentRunScalarWhereInput | AgentRunScalarWhereInput[]
+    OR?: AgentRunScalarWhereInput[]
+    NOT?: AgentRunScalarWhereInput | AgentRunScalarWhereInput[]
+    id?: StringFilter<"AgentRun"> | string
+    datasetId?: StringNullableFilter<"AgentRun"> | string | null
+    conversationId?: StringNullableFilter<"AgentRun"> | string | null
+    evaluationExampleId?: StringNullableFilter<"AgentRun"> | string | null
+    predictedIntentId?: StringNullableFilter<"AgentRun"> | string | null
+    inputText?: StringFilter<"AgentRun"> | string
+    draftReply?: StringNullableFilter<"AgentRun"> | string | null
+    shouldEscalate?: BoolFilter<"AgentRun"> | boolean
+    escalationReason?: StringNullableFilter<"AgentRun"> | string | null
+    model?: StringNullableFilter<"AgentRun"> | string | null
+    latencyMs?: IntNullableFilter<"AgentRun"> | number | null
+    createdAt?: DateTimeFilter<"AgentRun"> | Date | string
+  }
+
+  export type DatasetCreateWithoutBrandsInput = {
+    id?: string
+    name: string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.DatasetStatus
+    errorMessage?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user?: UserCreateNestedOneWithoutDatasetsInput
+    agentRuns?: AgentRunCreateNestedManyWithoutDatasetInput
+  }
+
+  export type DatasetUncheckedCreateWithoutBrandsInput = {
+    id?: string
+    userId?: string | null
+    name: string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.DatasetStatus
+    errorMessage?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agentRuns?: AgentRunUncheckedCreateNestedManyWithoutDatasetInput
+  }
+
+  export type DatasetCreateOrConnectWithoutBrandsInput = {
+    where: DatasetWhereUniqueInput
+    create: XOR<DatasetCreateWithoutBrandsInput, DatasetUncheckedCreateWithoutBrandsInput>
   }
 
   export type CustomerCreateWithoutBrandInput = {
@@ -22712,6 +25064,41 @@ export namespace Prisma {
   export type IntentCreateManyBrandInputEnvelope = {
     data: IntentCreateManyBrandInput | IntentCreateManyBrandInput[]
     skipDuplicates?: boolean
+  }
+
+  export type DatasetUpsertWithoutBrandsInput = {
+    update: XOR<DatasetUpdateWithoutBrandsInput, DatasetUncheckedUpdateWithoutBrandsInput>
+    create: XOR<DatasetCreateWithoutBrandsInput, DatasetUncheckedCreateWithoutBrandsInput>
+    where?: DatasetWhereInput
+  }
+
+  export type DatasetUpdateToOneWithWhereWithoutBrandsInput = {
+    where?: DatasetWhereInput
+    data: XOR<DatasetUpdateWithoutBrandsInput, DatasetUncheckedUpdateWithoutBrandsInput>
+  }
+
+  export type DatasetUpdateWithoutBrandsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutDatasetsNestedInput
+    agentRuns?: AgentRunUpdateManyWithoutDatasetNestedInput
+  }
+
+  export type DatasetUncheckedUpdateWithoutBrandsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agentRuns?: AgentRunUncheckedUpdateManyWithoutDatasetNestedInput
   }
 
   export type CustomerUpsertWithWhereUniqueWithoutBrandInput = {
@@ -22802,12 +25189,14 @@ export namespace Prisma {
     name: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    dataset?: DatasetCreateNestedOneWithoutBrandsInput
     conversations?: ConversationCreateNestedManyWithoutBrandInput
     intents?: IntentCreateNestedManyWithoutBrandInput
   }
 
   export type BrandUncheckedCreateWithoutCustomersInput = {
     id?: string
+    datasetId?: string | null
     name: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -22866,12 +25255,14 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataset?: DatasetUpdateOneWithoutBrandsNestedInput
     conversations?: ConversationUpdateManyWithoutBrandNestedInput
     intents?: IntentUpdateManyWithoutBrandNestedInput
   }
 
   export type BrandUncheckedUpdateWithoutCustomersInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22900,12 +25291,14 @@ export namespace Prisma {
     name: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    dataset?: DatasetCreateNestedOneWithoutBrandsInput
     customers?: CustomerCreateNestedManyWithoutBrandInput
     intents?: IntentCreateNestedManyWithoutBrandInput
   }
 
   export type BrandUncheckedCreateWithoutConversationsInput = {
     id?: string
+    datasetId?: string | null
     name: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -22982,6 +25375,7 @@ export namespace Prisma {
     model?: string | null
     latencyMs?: number | null
     createdAt?: Date | string
+    dataset?: DatasetCreateNestedOneWithoutAgentRunsInput
     evaluationExample?: EvaluationExampleCreateNestedOneWithoutAgentRunsInput
     predictedIntent?: IntentCreateNestedOneWithoutAgentRunsInput
     evidence?: EvidenceCreateNestedManyWithoutAgentRunInput
@@ -22989,6 +25383,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedCreateWithoutConversationInput = {
     id?: string
+    datasetId?: string | null
     evaluationExampleId?: string | null
     predictedIntentId?: string | null
     inputText: string
@@ -23027,12 +25422,14 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataset?: DatasetUpdateOneWithoutBrandsNestedInput
     customers?: CustomerUpdateManyWithoutBrandNestedInput
     intents?: IntentUpdateManyWithoutBrandNestedInput
   }
 
   export type BrandUncheckedUpdateWithoutConversationsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -23113,23 +25510,6 @@ export namespace Prisma {
   export type AgentRunUpdateManyWithWhereWithoutConversationInput = {
     where: AgentRunScalarWhereInput
     data: XOR<AgentRunUpdateManyMutationInput, AgentRunUncheckedUpdateManyWithoutConversationInput>
-  }
-
-  export type AgentRunScalarWhereInput = {
-    AND?: AgentRunScalarWhereInput | AgentRunScalarWhereInput[]
-    OR?: AgentRunScalarWhereInput[]
-    NOT?: AgentRunScalarWhereInput | AgentRunScalarWhereInput[]
-    id?: StringFilter<"AgentRun"> | string
-    conversationId?: StringNullableFilter<"AgentRun"> | string | null
-    evaluationExampleId?: StringNullableFilter<"AgentRun"> | string | null
-    predictedIntentId?: StringNullableFilter<"AgentRun"> | string | null
-    inputText?: StringFilter<"AgentRun"> | string
-    draftReply?: StringNullableFilter<"AgentRun"> | string | null
-    shouldEscalate?: BoolFilter<"AgentRun"> | boolean
-    escalationReason?: StringNullableFilter<"AgentRun"> | string | null
-    model?: StringNullableFilter<"AgentRun"> | string | null
-    latencyMs?: IntNullableFilter<"AgentRun"> | number | null
-    createdAt?: DateTimeFilter<"AgentRun"> | Date | string
   }
 
   export type ConversationCreateWithoutMessagesInput = {
@@ -23244,12 +25624,14 @@ export namespace Prisma {
     name: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    dataset?: DatasetCreateNestedOneWithoutBrandsInput
     customers?: CustomerCreateNestedManyWithoutBrandInput
     conversations?: ConversationCreateNestedManyWithoutBrandInput
   }
 
   export type BrandUncheckedCreateWithoutIntentsInput = {
     id?: string
+    datasetId?: string | null
     name: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -23271,6 +25653,7 @@ export namespace Prisma {
     model?: string | null
     latencyMs?: number | null
     createdAt?: Date | string
+    dataset?: DatasetCreateNestedOneWithoutAgentRunsInput
     conversation?: ConversationCreateNestedOneWithoutAgentRunsInput
     evaluationExample?: EvaluationExampleCreateNestedOneWithoutAgentRunsInput
     evidence?: EvidenceCreateNestedManyWithoutAgentRunInput
@@ -23278,6 +25661,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedCreateWithoutPredictedIntentInput = {
     id?: string
+    datasetId?: string | null
     conversationId?: string | null
     evaluationExampleId?: string | null
     inputText: string
@@ -23348,12 +25732,14 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataset?: DatasetUpdateOneWithoutBrandsNestedInput
     customers?: CustomerUpdateManyWithoutBrandNestedInput
     conversations?: ConversationUpdateManyWithoutBrandNestedInput
   }
 
   export type BrandUncheckedUpdateWithoutIntentsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -23508,6 +25894,7 @@ export namespace Prisma {
     model?: string | null
     latencyMs?: number | null
     createdAt?: Date | string
+    dataset?: DatasetCreateNestedOneWithoutAgentRunsInput
     conversation?: ConversationCreateNestedOneWithoutAgentRunsInput
     predictedIntent?: IntentCreateNestedOneWithoutAgentRunsInput
     evidence?: EvidenceCreateNestedManyWithoutAgentRunInput
@@ -23515,6 +25902,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedCreateWithoutEvaluationExampleInput = {
     id?: string
+    datasetId?: string | null
     conversationId?: string | null
     predictedIntentId?: string | null
     inputText: string
@@ -23607,6 +25995,35 @@ export namespace Prisma {
   export type AgentRunUpdateManyWithWhereWithoutEvaluationExampleInput = {
     where: AgentRunScalarWhereInput
     data: XOR<AgentRunUpdateManyMutationInput, AgentRunUncheckedUpdateManyWithoutEvaluationExampleInput>
+  }
+
+  export type DatasetCreateWithoutAgentRunsInput = {
+    id?: string
+    name: string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.DatasetStatus
+    errorMessage?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user?: UserCreateNestedOneWithoutDatasetsInput
+    brands?: BrandCreateNestedManyWithoutDatasetInput
+  }
+
+  export type DatasetUncheckedCreateWithoutAgentRunsInput = {
+    id?: string
+    userId?: string | null
+    name: string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.DatasetStatus
+    errorMessage?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    brands?: BrandUncheckedCreateNestedManyWithoutDatasetInput
+  }
+
+  export type DatasetCreateOrConnectWithoutAgentRunsInput = {
+    where: DatasetWhereUniqueInput
+    create: XOR<DatasetCreateWithoutAgentRunsInput, DatasetUncheckedCreateWithoutAgentRunsInput>
   }
 
   export type ConversationCreateWithoutAgentRunsInput = {
@@ -23706,6 +26123,41 @@ export namespace Prisma {
   export type EvidenceCreateManyAgentRunInputEnvelope = {
     data: EvidenceCreateManyAgentRunInput | EvidenceCreateManyAgentRunInput[]
     skipDuplicates?: boolean
+  }
+
+  export type DatasetUpsertWithoutAgentRunsInput = {
+    update: XOR<DatasetUpdateWithoutAgentRunsInput, DatasetUncheckedUpdateWithoutAgentRunsInput>
+    create: XOR<DatasetCreateWithoutAgentRunsInput, DatasetUncheckedCreateWithoutAgentRunsInput>
+    where?: DatasetWhereInput
+  }
+
+  export type DatasetUpdateToOneWithWhereWithoutAgentRunsInput = {
+    where?: DatasetWhereInput
+    data: XOR<DatasetUpdateWithoutAgentRunsInput, DatasetUncheckedUpdateWithoutAgentRunsInput>
+  }
+
+  export type DatasetUpdateWithoutAgentRunsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutDatasetsNestedInput
+    brands?: BrandUpdateManyWithoutDatasetNestedInput
+  }
+
+  export type DatasetUncheckedUpdateWithoutAgentRunsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    brands?: BrandUncheckedUpdateManyWithoutDatasetNestedInput
   }
 
   export type ConversationUpsertWithoutAgentRunsInput = {
@@ -23826,6 +26278,7 @@ export namespace Prisma {
     model?: string | null
     latencyMs?: number | null
     createdAt?: Date | string
+    dataset?: DatasetCreateNestedOneWithoutAgentRunsInput
     conversation?: ConversationCreateNestedOneWithoutAgentRunsInput
     evaluationExample?: EvaluationExampleCreateNestedOneWithoutAgentRunsInput
     predictedIntent?: IntentCreateNestedOneWithoutAgentRunsInput
@@ -23833,6 +26286,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedCreateWithoutEvidenceInput = {
     id?: string
+    datasetId?: string | null
     conversationId?: string | null
     evaluationExampleId?: string | null
     predictedIntentId?: string | null
@@ -23897,6 +26351,7 @@ export namespace Prisma {
     model?: NullableStringFieldUpdateOperationsInput | string | null
     latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataset?: DatasetUpdateOneWithoutAgentRunsNestedInput
     conversation?: ConversationUpdateOneWithoutAgentRunsNestedInput
     evaluationExample?: EvaluationExampleUpdateOneWithoutAgentRunsNestedInput
     predictedIntent?: IntentUpdateOneWithoutAgentRunsNestedInput
@@ -23904,6 +26359,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedUpdateWithoutEvidenceInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     conversationId?: NullableStringFieldUpdateOperationsInput | string | null
     evaluationExampleId?: NullableStringFieldUpdateOperationsInput | string | null
     predictedIntentId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23977,6 +26433,16 @@ export namespace Prisma {
   export type PostCreateManyCreatedByInput = {
     id?: string
     name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DatasetCreateManyUserInput = {
+    id?: string
+    name: string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.DatasetStatus
+    errorMessage?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -24075,6 +26541,132 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DatasetUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    brands?: BrandUpdateManyWithoutDatasetNestedInput
+    agentRuns?: AgentRunUpdateManyWithoutDatasetNestedInput
+  }
+
+  export type DatasetUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    brands?: BrandUncheckedUpdateManyWithoutDatasetNestedInput
+    agentRuns?: AgentRunUncheckedUpdateManyWithoutDatasetNestedInput
+  }
+
+  export type DatasetUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    rawData?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BrandCreateManyDatasetInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentRunCreateManyDatasetInput = {
+    id?: string
+    conversationId?: string | null
+    evaluationExampleId?: string | null
+    predictedIntentId?: string | null
+    inputText: string
+    draftReply?: string | null
+    shouldEscalate?: boolean
+    escalationReason?: string | null
+    model?: string | null
+    latencyMs?: number | null
+    createdAt?: Date | string
+  }
+
+  export type BrandUpdateWithoutDatasetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customers?: CustomerUpdateManyWithoutBrandNestedInput
+    conversations?: ConversationUpdateManyWithoutBrandNestedInput
+    intents?: IntentUpdateManyWithoutBrandNestedInput
+  }
+
+  export type BrandUncheckedUpdateWithoutDatasetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customers?: CustomerUncheckedUpdateManyWithoutBrandNestedInput
+    conversations?: ConversationUncheckedUpdateManyWithoutBrandNestedInput
+    intents?: IntentUncheckedUpdateManyWithoutBrandNestedInput
+  }
+
+  export type BrandUncheckedUpdateManyWithoutDatasetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentRunUpdateWithoutDatasetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inputText?: StringFieldUpdateOperationsInput | string
+    draftReply?: NullableStringFieldUpdateOperationsInput | string | null
+    shouldEscalate?: BoolFieldUpdateOperationsInput | boolean
+    escalationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    model?: NullableStringFieldUpdateOperationsInput | string | null
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    conversation?: ConversationUpdateOneWithoutAgentRunsNestedInput
+    evaluationExample?: EvaluationExampleUpdateOneWithoutAgentRunsNestedInput
+    predictedIntent?: IntentUpdateOneWithoutAgentRunsNestedInput
+    evidence?: EvidenceUpdateManyWithoutAgentRunNestedInput
+  }
+
+  export type AgentRunUncheckedUpdateWithoutDatasetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
+    evaluationExampleId?: NullableStringFieldUpdateOperationsInput | string | null
+    predictedIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    inputText?: StringFieldUpdateOperationsInput | string
+    draftReply?: NullableStringFieldUpdateOperationsInput | string | null
+    shouldEscalate?: BoolFieldUpdateOperationsInput | boolean
+    escalationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    model?: NullableStringFieldUpdateOperationsInput | string | null
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    evidence?: EvidenceUncheckedUpdateManyWithoutAgentRunNestedInput
+  }
+
+  export type AgentRunUncheckedUpdateManyWithoutDatasetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
+    evaluationExampleId?: NullableStringFieldUpdateOperationsInput | string | null
+    predictedIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    inputText?: StringFieldUpdateOperationsInput | string
+    draftReply?: NullableStringFieldUpdateOperationsInput | string | null
+    shouldEscalate?: BoolFieldUpdateOperationsInput | boolean
+    escalationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    model?: NullableStringFieldUpdateOperationsInput | string | null
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CustomerCreateManyBrandInput = {
@@ -24227,6 +26819,7 @@ export namespace Prisma {
 
   export type AgentRunCreateManyConversationInput = {
     id?: string
+    datasetId?: string | null
     evaluationExampleId?: string | null
     predictedIntentId?: string | null
     inputText: string
@@ -24279,6 +26872,7 @@ export namespace Prisma {
     model?: NullableStringFieldUpdateOperationsInput | string | null
     latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataset?: DatasetUpdateOneWithoutAgentRunsNestedInput
     evaluationExample?: EvaluationExampleUpdateOneWithoutAgentRunsNestedInput
     predictedIntent?: IntentUpdateOneWithoutAgentRunsNestedInput
     evidence?: EvidenceUpdateManyWithoutAgentRunNestedInput
@@ -24286,6 +26880,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedUpdateWithoutConversationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     evaluationExampleId?: NullableStringFieldUpdateOperationsInput | string | null
     predictedIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     inputText?: StringFieldUpdateOperationsInput | string
@@ -24300,6 +26895,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedUpdateManyWithoutConversationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     evaluationExampleId?: NullableStringFieldUpdateOperationsInput | string | null
     predictedIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     inputText?: StringFieldUpdateOperationsInput | string
@@ -24341,6 +26937,7 @@ export namespace Prisma {
 
   export type AgentRunCreateManyPredictedIntentInput = {
     id?: string
+    datasetId?: string | null
     conversationId?: string | null
     evaluationExampleId?: string | null
     inputText: string
@@ -24371,6 +26968,7 @@ export namespace Prisma {
     model?: NullableStringFieldUpdateOperationsInput | string | null
     latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataset?: DatasetUpdateOneWithoutAgentRunsNestedInput
     conversation?: ConversationUpdateOneWithoutAgentRunsNestedInput
     evaluationExample?: EvaluationExampleUpdateOneWithoutAgentRunsNestedInput
     evidence?: EvidenceUpdateManyWithoutAgentRunNestedInput
@@ -24378,6 +26976,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedUpdateWithoutPredictedIntentInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     conversationId?: NullableStringFieldUpdateOperationsInput | string | null
     evaluationExampleId?: NullableStringFieldUpdateOperationsInput | string | null
     inputText?: StringFieldUpdateOperationsInput | string
@@ -24392,6 +26991,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedUpdateManyWithoutPredictedIntentInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     conversationId?: NullableStringFieldUpdateOperationsInput | string | null
     evaluationExampleId?: NullableStringFieldUpdateOperationsInput | string | null
     inputText?: StringFieldUpdateOperationsInput | string
@@ -24479,6 +27079,7 @@ export namespace Prisma {
 
   export type AgentRunCreateManyEvaluationExampleInput = {
     id?: string
+    datasetId?: string | null
     conversationId?: string | null
     predictedIntentId?: string | null
     inputText: string
@@ -24499,6 +27100,7 @@ export namespace Prisma {
     model?: NullableStringFieldUpdateOperationsInput | string | null
     latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataset?: DatasetUpdateOneWithoutAgentRunsNestedInput
     conversation?: ConversationUpdateOneWithoutAgentRunsNestedInput
     predictedIntent?: IntentUpdateOneWithoutAgentRunsNestedInput
     evidence?: EvidenceUpdateManyWithoutAgentRunNestedInput
@@ -24506,6 +27108,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedUpdateWithoutEvaluationExampleInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     conversationId?: NullableStringFieldUpdateOperationsInput | string | null
     predictedIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     inputText?: StringFieldUpdateOperationsInput | string
@@ -24520,6 +27123,7 @@ export namespace Prisma {
 
   export type AgentRunUncheckedUpdateManyWithoutEvaluationExampleInput = {
     id?: StringFieldUpdateOperationsInput | string
+    datasetId?: NullableStringFieldUpdateOperationsInput | string | null
     conversationId?: NullableStringFieldUpdateOperationsInput | string | null
     predictedIntentId?: NullableStringFieldUpdateOperationsInput | string | null
     inputText?: StringFieldUpdateOperationsInput | string

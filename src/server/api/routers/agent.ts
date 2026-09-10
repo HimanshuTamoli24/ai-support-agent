@@ -5,15 +5,18 @@ import {
   type IngestConversationItem,
 } from "~/server/services/dataset-service";
 import { runSupportAgent } from "~/server/services/agent-service";
+import { runFullBenchmarkSuite } from "~/server/services/evaluation-service";
 import { querySimilarEvidence } from "~/server/pinecone/client";
+import { inngest } from "~/server/inngest/client";
+import { db } from "~/server/db";
 
 export const agentRouter = createTRPCRouter({
-  // 1. Ingest JSON dataset of Twitter conversations (Brand Owner Dashboard)
-  ingestDataset: publicProcedure
+  // 1. Upload Dataset: Stores raw JSON in PostgreSQL & triggers Inngest background indexing
+  uploadDataset: publicProcedure
     .input(
       z.object({
-        defaultBrandName: z.string().optional().default("DefaultBrand"),
-        jsonData: z.string(), // raw JSON string from file upload or paste
+        name: z.string().min(1).default("Support Dataset"),
+        jsonData: z.string(), // raw JSON string from file upload
       }),
     )
     .mutation(async ({ input }) => {
@@ -29,7 +32,6 @@ export const agentRouter = createTRPCRouter({
       let conversations: IngestConversationItem[] = [];
 
       if (Array.isArray(parsed)) {
-        // Format A: Array of conversations
         conversations = parsed as IngestConversationItem[];
       } else if (
         typeof parsed === "object" &&
@@ -44,20 +46,66 @@ export const agentRouter = createTRPCRouter({
         );
       }
 
-      const result = await ingestDataset({
-        defaultBrandName: input.defaultBrandName,
-        conversations,
+      // Step 1: Create Dataset in PostgreSQL with status = PROCESSING
+      const dataset = await db.dataset.create({
+        data: {
+          name: input.name,
+          rawData: parsed as object,
+          status: "PROCESSING",
+        },
       });
 
-      return result;
+      // Step 2: Dispatch background Inngest event with datasetId
+      await inngest.send({
+        name: "support/user.data.upload",
+        data: {
+          datasetId: dataset.id,
+        },
+      });
+
+      return {
+        datasetId: dataset.id,
+        name: dataset.name,
+        status: "PROCESSING",
+        conversationsCount: conversations.length,
+      };
     }),
 
-  // 2. Semantic Search on Pinecone
+  // 2. Get all uploaded datasets and their statuses
+  getDatasets: publicProcedure.query(async () => {
+    return await db.dataset.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        _count: {
+          select: { brands: true, agentRuns: true },
+        },
+      },
+    });
+  }),
+
+  // 3. Get specific dataset by ID
+  getDatasetById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      return await db.dataset.findUnique({
+        where: { id: input.id },
+        include: {
+          brands: {
+            include: {
+              _count: { select: { conversations: true, intents: true } },
+            },
+          },
+        },
+      });
+    }),
+
+  // 4. Semantic Search on Pinecone (isolated by datasetId namespace)
   searchEvidence: publicProcedure
     .input(
       z.object({
         queryText: z.string().min(1),
         brandId: z.string().optional(),
+        datasetId: z.string().optional(),
         topK: z.number().min(1).max(20).optional().default(5),
       }),
     )
@@ -65,15 +113,17 @@ export const agentRouter = createTRPCRouter({
       return querySimilarEvidence({
         queryText: input.queryText,
         brandId: input.brandId,
+        namespace: input.datasetId,
         topK: input.topK,
       });
     }),
 
-  // 3. Public / Brand Chat: Run AI Support Agent & save AgentRun + Evidence
+  // 5. Run AI Support Agent with Pinecone evidence & OpenRouter reasoning
   runAgent: publicProcedure
     .input(
       z.object({
         inputText: z.string().min(1),
+        datasetId: z.string().optional(),
         brandId: z.string().optional(),
         conversationId: z.string().optional(),
         modelName: z.string().optional(),
@@ -82,6 +132,7 @@ export const agentRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       return runSupportAgent({
         inputText: input.inputText,
+        datasetId: input.datasetId,
         brandId: input.brandId,
         conversationId: input.conversationId,
         modelName: input.modelName,
@@ -166,4 +217,16 @@ export const agentRouter = createTRPCRouter({
         },
       });
     }),
+
+  // 8. Run Scientific Evaluation Benchmark Suite
+  runBenchmark: publicProcedure
+    .input(
+      z.object({
+        datasetId: z.string().optional(),
+      }).optional(),
+    )
+    .mutation(async ({ input }) => {
+      return runFullBenchmarkSuite(input?.datasetId);
+    }),
 });
+

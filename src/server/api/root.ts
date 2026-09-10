@@ -1,5 +1,4 @@
 import { agentRouter } from "~/server/api/routers/agent";
-import { inngestRouter } from "~/server/api/routers/inngest";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -8,7 +7,6 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  inngest: inngestRouter,
   agent: agentRouter,
 });
 

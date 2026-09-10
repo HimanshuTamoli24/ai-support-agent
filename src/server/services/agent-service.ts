@@ -3,12 +3,12 @@ import {
   querySimilarEvidence,
   type RetrievedEvidence,
 } from "~/server/pinecone/client";
-import { GoogleGenAI } from "@google/genai";
-import OpenAI from "openai";
+import { runOpenRouterModel } from "~/server/open-router/client";
 import { env } from "~/env";
 
 export interface RunAgentInput {
   inputText: string;
+  datasetId?: string;
   brandId?: string;
   conversationId?: string;
   evaluationExampleId?: string;
@@ -35,132 +35,100 @@ export interface AgentRunOutput {
 }
 
 /**
- * Execute AI Customer Support Agent with Pinecone retrieval evidence.
+ * Execute AI Customer Support Agent with Pinecone retrieval evidence and OpenRouter reasoning.
  */
 export async function runSupportAgent({
   inputText,
+  datasetId,
   brandId,
   conversationId,
   evaluationExampleId,
-  modelName = "gemini-2.5-flash",
+  modelName = "openrouter/free",
 }: RunAgentInput): Promise<AgentRunOutput> {
   const startTime = Date.now();
 
-  // 1. Retrieve top-5 relevant historical messages from Pinecone
+  // 1. Retrieve top-5 relevant historical messages from Pinecone namespace
   const retrievedEvidence: RetrievedEvidence[] = await querySimilarEvidence({
     queryText: inputText,
     brandId,
     topK: 5,
+    namespace: datasetId,
   });
 
-  // 2. Load available Intents for this Brand from Postgres
+  // 2. Load available Brand and Intents from Postgres
+  let brandName = "Support Agent";
+  if (brandId) {
+    const brand = await db.brand.findUnique({ where: { id: brandId } });
+    if (brand) brandName = brand.name;
+  }
+
   const availableIntents = brandId
     ? await db.intent.findMany({ where: { brandId } })
     : await db.intent.findMany({ take: 20 });
 
   const intentNames = availableIntents.map((i) => i.name);
 
-  // 3. Format Prompt with Context & Evidence
+  // 3. Format System Prompt with Context & Evidence
   const evidenceContext = retrievedEvidence
     .map(
       (ev, idx) =>
-        `[Evidence #${idx + 1}] (${ev.role}): "${ev.text}" (Similarity: ${(ev.score * 100).toFixed(1)}%)`,
+        `[Evidence #${idx + 1}] (ID: ${ev.messageId}, ${ev.role}): "${ev.text}" (Relevance: ${(ev.score * 100).toFixed(1)}%)`,
     )
     .join("\n");
 
-  const systemPrompt = `You are an expert AI Customer Support Agent.
-Your task is to analyze an incoming customer message, determine if it needs escalation to human agents, classify its intent, and generate a polite, accurate draft reply using the retrieved historical context.
+  const systemPrompt = `You are an AI customer support agent for ${brandName}.
+Your job is to analyze incoming customer messages, identify the intent, use historical support conversations as evidence, draft a grounded response, and decide whether to handle automatically (AUTO_HANDLE) or escalate to a human agent (ESCALATE).
 
-Available Intents: ${intentNames.length > 0 ? intentNames.join(", ") : "General Inquiry, Bug Report, Billing, Account Issue, Cancellation, Feature Request, Technical Support"}
+Available Intents: ${intentNames.length > 0 ? intentNames.join(", ") : "General Inquiry, Billing, Technical Support, Cancellation, Account Issue"}
 
-Retrieved Historical Evidence from previous support conversations:
-${evidenceContext || "No historical evidence retrieved."}
+Historical Support Evidence:
+${evidenceContext || "No historical evidence available."}
 
-Output strictly valid JSON with the following structure:
+Respond strictly in valid JSON with no extra commentary:
 {
-  "predictedIntent": "string (one of the available intents or best fit)",
-  "shouldEscalate": boolean,
-  "escalationReason": "string explanation if shouldEscalate is true, otherwise null",
-  "draftReply": "string (draft message to send to the customer in empathetic brand tone)",
-  "evidenceEvaluation": [
-    {
-      "evidenceIndex": number,
-      "reason": "how this evidence helped formulate the reply or decide escalation"
-    }
-  ]
+  "intent": "EXACT_INTENT_NAME",
+  "draft_reply": "Customer-facing response grounded in evidence",
+  "escalation": "AUTO_HANDLE or ESCALATE",
+  "escalation_reason": "Short reason for decision",
+  "evidence_ids": ["message_id_1"]
 }`;
 
   let parsedResponse: {
-    predictedIntent?: string;
-    shouldEscalate?: boolean;
-    escalationReason?: string | null;
-    draftReply?: string;
-    evidenceEvaluation?: Array<{ evidenceIndex: number; reason: string }>;
+    intent?: string;
+    draft_reply?: string;
+    escalation?: "AUTO_HANDLE" | "ESCALATE";
+    escalation_reason?: string;
+    evidence_ids?: string[];
   } = {};
 
-  const effectiveModel = modelName;
-
   try {
-    if (env.GEMINI_API_KEY) {
-      const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: [
-          {
-            role: "user",
-            parts: [
-              { text: `${systemPrompt}\n\nCustomer Query: "${inputText}"` },
-            ],
-          },
-        ],
-        config: {
-          responseMimeType: "application/json",
-        },
-      });
-
-      if (response.text) {
-        parsedResponse = JSON.parse(response.text);
-      }
-    } else if (env.OPENAI_API_KEY) {
-      const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Customer Query: "${inputText}"` },
-        ],
-        response_format: { type: "json_object" },
-      });
-
-      const content = completion.choices[0]?.message?.content;
-      if (content) {
-        parsedResponse = JSON.parse(content);
-      }
+    if (env.OPENROUTER_API_KEY) {
+      const rawOutput = await runOpenRouterModel(inputText, systemPrompt);
+      const cleaned = rawOutput.replace(/```json/gi, "").replace(/```/g, "").trim();
+      parsedResponse = JSON.parse(cleaned);
     } else {
       // Fallback heuristic simulation if API keys are not yet entered
+      const shouldEscalate =
+        inputText.toLowerCase().includes("urgent") ||
+        inputText.toLowerCase().includes("refund");
       parsedResponse = {
-        predictedIntent: intentNames[0] ?? "Technical Support",
-        shouldEscalate:
-          inputText.toLowerCase().includes("urgent") ||
-          inputText.toLowerCase().includes("refund"),
-        escalationReason: inputText.toLowerCase().includes("refund")
+        intent: intentNames[0] ?? "Technical Support",
+        escalation: shouldEscalate ? "ESCALATE" : "AUTO_HANDLE",
+        escalation_reason: shouldEscalate
           ? "Requires human billing team approval"
-          : null,
-        draftReply: `Thank you for contacting us. We've reviewed your request: "${inputText}" and are checking our records to assist you right away.`,
-        evidenceEvaluation: retrievedEvidence.map((_, i) => ({
-          evidenceIndex: i + 1,
-          reason: "Relevant historical context match.",
-        })),
+          : "Standard issue handled automatically based on historical precedents.",
+        draft_reply: `Thank you for contacting ${brandName}. We've reviewed your request: "${inputText}" and are checking our records to assist you right away.`,
+        evidence_ids: retrievedEvidence.map((e) => e.messageId),
       };
     }
   } catch (error) {
     console.error("AI Generation error:", error);
     parsedResponse = {
-      predictedIntent: intentNames[0] ?? "General Inquiry",
-      shouldEscalate: false,
-      escalationReason: null,
-      draftReply: `Hello! We've received your query: "${inputText}" and are looking into it.`,
-      evidenceEvaluation: [],
+      intent: intentNames[0] ?? "General Inquiry",
+      escalation: "AUTO_HANDLE",
+      escalation_reason: "Standard inquiry",
+      draft_reply: `Hello! Thank you for contacting ${brandName}. We've received your query: "${inputText}" and are looking into it.`,
+      evidence_ids: [],
     };
   }
 
@@ -168,19 +136,19 @@ Output strictly valid JSON with the following structure:
 
   // 4. Find or associate predicted Intent ID
   let predictedIntentId: string | null = null;
-  if (parsedResponse.predictedIntent) {
+  const predictedIntentName = parsedResponse.intent ?? (intentNames[0] || "General Inquiry");
+
+  if (predictedIntentName) {
     const matchedIntent = availableIntents.find(
-      (i) =>
-        i.name.toLowerCase() === parsedResponse.predictedIntent?.toLowerCase(),
+      (i) => i.name.toLowerCase() === predictedIntentName.toLowerCase(),
     );
     if (matchedIntent) {
       predictedIntentId = matchedIntent.id;
     } else if (brandId) {
-      // Create intent if new
       const newIntent = await db.intent.create({
         data: {
           brandId,
-          name: parsedResponse.predictedIntent,
+          name: predictedIntentName,
         },
       });
       predictedIntentId = newIntent.id;
@@ -188,16 +156,19 @@ Output strictly valid JSON with the following structure:
   }
 
   // 5. Store AgentRun record in PostgreSQL
+  const shouldEscalate = parsedResponse.escalation === "ESCALATE";
+
   const agentRun = await db.agentRun.create({
     data: {
+      datasetId: datasetId ?? undefined,
       conversationId: conversationId ?? undefined,
       evaluationExampleId: evaluationExampleId ?? undefined,
       predictedIntentId: predictedIntentId ?? undefined,
       inputText,
-      draftReply: parsedResponse.draftReply ?? null,
-      shouldEscalate: parsedResponse.shouldEscalate ?? false,
-      escalationReason: parsedResponse.escalationReason ?? null,
-      model: effectiveModel,
+      draftReply: parsedResponse.draft_reply ?? null,
+      shouldEscalate,
+      escalationReason: parsedResponse.escalation_reason ?? null,
+      model: modelName,
       latencyMs,
     },
   });
@@ -207,13 +178,11 @@ Output strictly valid JSON with the following structure:
 
   for (let i = 0; i < retrievedEvidence.length; i++) {
     const ev = retrievedEvidence[i]!;
-    const evalItem = parsedResponse.evidenceEvaluation?.find(
-      (e) => e.evidenceIndex === i + 1,
-    );
+    const isCited = parsedResponse.evidence_ids?.includes(ev.messageId);
 
-    const reason =
-      evalItem?.reason ??
-      `Semantic similarity score: ${(ev.score * 100).toFixed(1)}%`;
+    const reason = isCited
+      ? `Explicitly cited evidence by AI model (Relevance: ${(ev.score * 100).toFixed(1)}%)`
+      : `Semantic similarity match: ${(ev.score * 100).toFixed(1)}%`;
 
     await db.evidence.create({
       data: {
@@ -236,12 +205,12 @@ Output strictly valid JSON with the following structure:
   return {
     id: agentRun.id,
     inputText,
-    predictedIntentName: parsedResponse.predictedIntent,
+    predictedIntentName,
     predictedIntentId,
-    shouldEscalate: parsedResponse.shouldEscalate ?? false,
-    escalationReason: parsedResponse.escalationReason,
-    draftReply: parsedResponse.draftReply,
-    model: effectiveModel,
+    shouldEscalate,
+    escalationReason: parsedResponse.escalation_reason,
+    draftReply: parsedResponse.draft_reply,
+    model: modelName,
     latencyMs,
     evidence: evidenceRecordsToReturn,
   };

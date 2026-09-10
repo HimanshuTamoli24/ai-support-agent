@@ -22,6 +22,7 @@ export interface IngestConversationItem {
 }
 
 export interface IngestDatasetInput {
+  datasetId?: string;
   defaultBrandName?: string;
   conversations: IngestConversationItem[];
 }
@@ -35,9 +36,10 @@ export interface IngestDatasetResult {
 }
 
 /**
- * Ingest raw Twitter dataset into PostgreSQL (Prisma) and index into Pinecone vector DB.
+ * Ingest raw Twitter dataset into PostgreSQL (Prisma) and index into Pinecone vector DB under datasetId namespace.
  */
 export async function ingestDataset({
+  datasetId,
   defaultBrandName = "DefaultBrand",
   conversations,
 }: IngestDatasetInput): Promise<IngestDatasetResult> {
@@ -64,11 +66,14 @@ export async function ingestDataset({
     let brandId = brandMap.get(brandName);
     if (!brandId) {
       let brand = await db.brand.findFirst({
-        where: { name: brandName },
+        where: { name: brandName, datasetId: datasetId ?? undefined },
       });
       if (!brand) {
         brand = await db.brand.create({
-          data: { name: brandName },
+          data: {
+            name: brandName,
+            datasetId: datasetId ?? undefined,
+          },
         });
       }
       brandId = brand.id;
@@ -78,49 +83,29 @@ export async function ingestDataset({
     // 2. Ensure Customer exists if provided
     let customerId: string | null = null;
     if (convData.customer?.twitterId || convData.customer?.username) {
-      const custTwitterId = convData.customer.twitterId ?? null;
-      const custUsername = convData.customer.username ?? null;
-
-      let customer = custTwitterId
-        ? await db.customer.findFirst({
-            where: { brandId, twitterId: custTwitterId },
-          })
-        : null;
-
-      if (!customer) {
-        customer = await db.customer.create({
-          data: {
-            brandId,
-            twitterId: custTwitterId,
-            username: custUsername,
-          },
-        });
-        totalCustomers++;
-      }
-      customerId = customer.id;
-    }
-
-    // 3. Create or find Conversation
-    let conversation = convData.conversationTwitterId
-      ? await db.conversation.findUnique({
-          where: { twitterId: convData.conversationTwitterId },
-        })
-      : null;
-
-    if (!conversation) {
-      conversation = await db.conversation.create({
+      const customer = await db.customer.create({
         data: {
           brandId,
-          customerId,
-          twitterId: convData.conversationTwitterId ?? undefined,
+          twitterId: convData.customer.twitterId ?? null,
+          username: convData.customer.username ?? null,
         },
       });
-      totalConversations++;
+      customerId = customer.id;
+      totalCustomers++;
     }
+
+    // 3. Create Conversation
+    const conversation = await db.conversation.create({
+      data: {
+        brandId,
+        customerId,
+        twitterId: convData.conversationTwitterId ?? null,
+      },
+    });
+    totalConversations++;
 
     // 4. Create Messages
     for (const msgData of convData.messages) {
-      if (!msgData.text || msgData.text.trim().length === 0) continue;
 
       let message = msgData.twitterId
         ? await db.message.findUnique({
@@ -156,10 +141,10 @@ export async function ingestDataset({
     }
   }
 
-  // 5. Index messages into Pinecone vector DB
+  // 5. Index messages into Pinecone vector DB with datasetId namespace
   let pineconeIndexedCount = 0;
   if (messagesToIndex.length > 0) {
-    const { upsertedCount } = await upsertMessagesToPinecone(messagesToIndex);
+    const { upsertedCount } = await upsertMessagesToPinecone(messagesToIndex, datasetId);
     pineconeIndexedCount = upsertedCount;
   }
 

@@ -175,8 +175,20 @@ exports.Prisma.VerificationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.DatasetScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  rawData: 'rawData',
+  status: 'status',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.BrandScalarFieldEnum = {
   id: 'id',
+  datasetId: 'datasetId',
   name: 'name',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -240,6 +252,7 @@ exports.Prisma.EvaluationExampleScalarFieldEnum = {
 
 exports.Prisma.AgentRunScalarFieldEnum = {
   id: 'id',
+  datasetId: 'datasetId',
   conversationId: 'conversationId',
   evaluationExampleId: 'evaluationExampleId',
   predictedIntentId: 'predictedIntentId',
@@ -265,6 +278,11 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -274,6 +292,18 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+exports.DatasetStatus = exports.$Enums.DatasetStatus = {
+  PROCESSING: 'PROCESSING',
+  READY: 'READY',
+  FAILED: 'FAILED'
+};
+
 exports.MessageRole = exports.$Enums.MessageRole = {
   CUSTOMER: 'CUSTOMER',
   BRAND: 'BRAND'
@@ -285,6 +315,7 @@ exports.Prisma.ModelName = {
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification',
+  Dataset: 'Dataset',
   Brand: 'Brand',
   Customer: 'Customer',
   Conversation: 'Conversation',

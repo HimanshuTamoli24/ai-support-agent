@@ -55,19 +55,51 @@ export const agentRouter = createTRPCRouter({
         },
       });
 
-      // Step 2: Dispatch background Inngest event with datasetId
-      await inngest.send({
-        name: "support/user.data.upload",
+      // Step 2: Try dispatching Inngest event; if event key missing in production, fallback to direct ingestion
+      try {
+        if (process.env.INNGEST_EVENT_KEY || process.env.NODE_ENV !== "production") {
+          await inngest.send({
+            name: "support/user.data.upload",
+            data: {
+              datasetId: dataset.id,
+            },
+          });
+
+          return {
+            datasetId: dataset.id,
+            name: dataset.name,
+            status: "PROCESSING",
+            conversationsCount: conversations.length,
+          };
+        }
+      } catch (inngestErr) {
+        console.warn(
+          "Inngest event dispatch failed/skipped, executing direct ingestion fallback:",
+          inngestErr,
+        );
+      }
+
+      // Step 3: Direct fallback ingestion for production environments without Inngest Cloud key
+      const summary = await ingestDataset({
+        datasetId: dataset.id,
+        defaultBrandName: dataset.name,
+        conversations,
+      });
+
+      await db.dataset.update({
+        where: { id: dataset.id },
         data: {
-          datasetId: dataset.id,
+          status: "READY",
+          errorMessage: null,
         },
       });
 
       return {
         datasetId: dataset.id,
         name: dataset.name,
-        status: "PROCESSING",
+        status: "READY",
         conversationsCount: conversations.length,
+        summary,
       };
     }),
 

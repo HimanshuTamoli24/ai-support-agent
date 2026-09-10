@@ -70,7 +70,9 @@ export function DatasetUploader({
   const uploadMutation = api.agent.uploadDataset.useMutation({
     onSuccess: (data) => {
       setUploadStatus(
-        `✅ Dataset "${data.name}" queued! ID: ${data.datasetId} (${data.conversationsCount} conversations). Inngest is now normalizing to PostgreSQL and indexing in Pinecone.`,
+        data.status === "READY"
+          ? `✅ Dataset "${data.name}" normalized and indexed into Pinecone & PostgreSQL successfully! (${data.conversationsCount} conversations).`
+          : `✅ Dataset "${data.name}" queued! ID: ${data.datasetId} (${data.conversationsCount} conversations). Inngest background indexing started.`,
       );
       onUploadSuccess?.();
     },

@@ -11,3 +11,5 @@ export const weatherTool = tool({
     return { temperature: 72, condition: "sunny", location };
   },
 });
+
+export const allTools = [weatherTool];

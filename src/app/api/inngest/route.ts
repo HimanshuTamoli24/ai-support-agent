@@ -1,8 +1,8 @@
 import { serve } from "inngest/next";
 import { inngest } from "~/server/inngest/client";
-import { testTask } from "~/server/inngest/function";
+import { supportAgent, uploadToPinecone } from "~/server/inngest/function";
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions: [testTask],
+  functions: [supportAgent,uploadToPinecone],
 });

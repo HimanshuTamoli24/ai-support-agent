@@ -76,103 +76,114 @@ export function SupportDashboard({ user }: SupportDashboardProps) {
     <div className="space-y-4">
       {/* Bento Navigation Tabs */}
       <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
-        <div className="flex items-center gap-1.5 rounded-2xl border border-slate-200/80 bg-white p-1.5 shadow-sm">
+        <div className="flex items-center gap-1 sm:gap-1.5 rounded-2xl border border-slate-200/80 bg-white p-1 sm:p-1.5 shadow-sm">
           <button
             type="button"
+            title="Bento Overview"
             onClick={() => setActiveTab("overview")}
-            className={`rounded-xl px-4 py-1.5 text-xs font-semibold transition ${
+            className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 sm:px-3.5 text-xs font-semibold transition ${
               activeTab === "overview"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             }`}
           >
-            ⚡ Bento Overview
+            <span>⚡</span>
+            <span className="hidden sm:inline">Bento Overview</span>
           </button>
+
           <button
             type="button"
+            title="AI Sandbox"
             onClick={() => setActiveTab("tester")}
-            className={`rounded-xl px-4 py-1.5 text-xs font-semibold transition ${
+            className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 sm:px-3.5 text-xs font-semibold transition ${
               activeTab === "tester"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             }`}
           >
-            🔍 AI Sandbox
+            <span>🔍</span>
+            <span className="hidden sm:inline">AI Sandbox</span>
           </button>
+
           <button
             type="button"
+            title="180-Case Benchmark"
             onClick={() => setActiveTab("benchmark")}
-            className={`rounded-xl px-4 py-1.5 text-xs font-semibold transition ${
+            className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 sm:px-3.5 text-xs font-semibold transition ${
               activeTab === "benchmark"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             }`}
           >
-            📊 180-Case Benchmark
+            <span>📊</span>
+            <span className="hidden sm:inline">180-Case Benchmark</span>
           </button>
+
           <button
             type="button"
+            title="Ingest Dataset"
             onClick={() => setActiveTab("uploader")}
-            className={`rounded-xl px-4 py-1.5 text-xs font-semibold transition ${
+            className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 sm:px-3.5 text-xs font-semibold transition ${
               activeTab === "uploader"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             }`}
           >
-            📥 Ingest Dataset
+            <span>📥</span>
+            <span className="hidden sm:inline">Ingest Dataset</span>
           </button>
+
           <button
             type="button"
+            title="Runs History"
             onClick={() => setActiveTab("history")}
-            className={`rounded-xl px-4 py-1.5 text-xs font-semibold transition ${
+            className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 sm:px-3.5 text-xs font-semibold transition ${
               activeTab === "history"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             }`}
           >
-            🕒 Runs History
+            <span>🕒</span>
+            <span className="hidden sm:inline">Runs History</span>
           </button>
         </div>
 
         {/* User Profile Dropdown Menu */}
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <button
-              type="button"
-              className="flex cursor-pointer items-center gap-2 rounded-2xl border border-slate-200/80 bg-white px-3 py-1.5 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none"
+          <DropdownMenuTrigger
+            className="flex cursor-pointer items-center gap-1.5 sm:gap-2 rounded-2xl border border-slate-200/80 bg-white p-1.5 sm:px-3 sm:py-1.5 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none"
+          >
+            {user?.image ? (
+              <Image
+                src={user.image}
+                alt={user.name ?? "User"}
+                width={22}
+                height={22}
+                className="rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                {user?.name?.[0]?.toUpperCase() ??
+                  user?.email?.[0]?.toUpperCase() ??
+                  "U"}
+              </div>
+            )}
+            <span className="hidden sm:inline max-w-[120px] truncate text-xs font-semibold text-slate-800">
+              {user?.name ?? user?.email ?? "Account"}
+            </span>
+            <svg
+              className="hidden sm:block h-3 w-3 text-slate-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
             >
-              {user?.image ? (
-                <Image
-                  src={user.image}
-                  alt={user.name ?? "User"}
-                  width={20}
-                  height={20}
-                  className="rounded-full object-cover"
-                />
-              ) : (
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                  {user?.name?.[0]?.toUpperCase() ??
-                    user?.email?.[0]?.toUpperCase() ??
-                    "U"}
-                </div>
-              )}
-              <span className="max-w-[120px] truncate text-xs font-semibold text-slate-800">
-                {user?.name ?? user?.email ?? "Account"}
-              </span>
-              <svg
-                className="h-3 w-3 text-slate-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent

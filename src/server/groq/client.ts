@@ -12,13 +12,23 @@ export async function runGroqModel(
   input: string,
   instructions: string,
   model = DEFAULT_GROQ_MODEL,
+  history?: Array<{ role: "user" | "assistant"; content: string }>,
 ): Promise<string> {
+  const messages: Groq.Chat.Completions.ChatCompletionMessageParam[] = [
+    { role: "system", content: instructions },
+  ];
+
+  if (history && history.length > 0) {
+    for (const h of history) {
+      messages.push({ role: h.role, content: h.content });
+    }
+  }
+
+  messages.push({ role: "user", content: input });
+
   const completion = await groq.chat.completions.create({
     model,
-    messages: [
-      { role: "system", content: instructions },
-      { role: "user", content: input },
-    ],
+    messages,
     temperature: 0.2,
     max_tokens: 1024,
   });

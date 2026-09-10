@@ -160,6 +160,14 @@ export const agentRouter = createTRPCRouter({
         brandId: z.string().optional(),
         conversationId: z.string().optional(),
         modelName: z.string().optional(),
+        history: z
+          .array(
+            z.object({
+              role: z.enum(["CUSTOMER", "BRAND", "USER", "AGENT"]),
+              text: z.string(),
+            }),
+          )
+          .optional(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -169,6 +177,7 @@ export const agentRouter = createTRPCRouter({
         brandId: input.brandId,
         conversationId: input.conversationId,
         modelName: input.modelName,
+        history: input.history,
       });
     }),
 

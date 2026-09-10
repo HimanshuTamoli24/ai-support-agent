@@ -101,6 +101,13 @@ export function PublicChatView({
       createdAt: new Date(),
     };
 
+    const historyToSend = messages
+      .filter((m) => m.id !== "welcome")
+      .map((m) => ({
+        role: (m.sender === "USER" ? "USER" : "AGENT") as "USER" | "AGENT",
+        text: m.text,
+      }));
+
     setMessages((prev) => [...prev, userMsg]);
     if (!textToSend) setInputMessage("");
 
@@ -108,6 +115,7 @@ export function PublicChatView({
       inputText: text.trim(),
       brandId,
       conversationId,
+      history: historyToSend,
     });
   };
 

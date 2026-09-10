@@ -6,11 +6,17 @@ import {
 import { runGroqModel, DEFAULT_GROQ_MODEL } from "~/server/groq/client";
 import { env } from "~/env";
 
+export interface HistoryMessage {
+  role: "CUSTOMER" | "BRAND" | "USER" | "AGENT";
+  text: string;
+}
+
 export interface RunAgentInput {
   inputText: string;
   datasetId?: string;
   brandId?: string;
   conversationId?: string;
+  history?: HistoryMessage[];
   evaluationExampleId?: string;
   modelName?: string;
 }
@@ -42,14 +48,26 @@ export async function runSupportAgent({
   datasetId,
   brandId,
   conversationId,
+  history = [],
   evaluationExampleId,
   modelName = DEFAULT_GROQ_MODEL,
 }: RunAgentInput): Promise<AgentRunOutput> {
   const startTime = Date.now();
 
-  // 1. Retrieve top-5 relevant historical messages from Pinecone namespace
+  // 1. Build contextual search query for Pinecone vector search
+  const previousCustomerTexts = history
+    .filter((h) => h.role === "CUSTOMER" || h.role === "USER")
+    .map((h) => h.text.trim());
+  
+  const lastCustomerQuery = previousCustomerTexts[previousCustomerTexts.length - 1];
+  const contextualSearchQuery =
+    lastCustomerQuery && lastCustomerQuery !== inputText.trim()
+      ? `${lastCustomerQuery} ${inputText.trim()}`
+      : inputText.trim();
+
+  // Retrieve top-5 relevant historical messages from Pinecone namespace
   const retrievedEvidence: RetrievedEvidence[] = await querySimilarEvidence({
-    queryText: inputText,
+    queryText: contextualSearchQuery,
     brandId,
     topK: 5,
     namespace: datasetId,
@@ -68,7 +86,7 @@ export async function runSupportAgent({
 
   const intentNames = availableIntents.map((i) => i.name);
 
-  // 3. Format System Prompt with Context & Evidence
+  // 3. Format System Prompt with Context, Evidence, and Conversation Thread
   const evidenceContext = retrievedEvidence
     .map(
       (ev, idx) =>
@@ -76,18 +94,35 @@ export async function runSupportAgent({
     )
     .join("\n");
 
-  const systemPrompt = `You are an AI customer support agent for ${brandName}.
-Your job is to analyze incoming customer messages, identify the intent, use historical support conversations as evidence, draft a grounded response, and decide whether to handle automatically (AUTO_HANDLE) or escalate to a human agent (ESCALATE).
+  const conversationThreadText =
+    history.length > 0
+      ? `\nACTIVE CONVERSATION THREAD SO FAR:\n${history
+          .map(
+            (h) =>
+              `- ${h.role === "CUSTOMER" || h.role === "USER" ? "Customer" : "Agent"}: "${h.text}"`,
+          )
+          .join("\n")}\n- Customer (Current message): "${inputText}"\n`
+      : `Current Customer Message: "${inputText}"\n`;
 
-Available Intents: ${intentNames.length > 0 ? intentNames.join(", ") : "General Inquiry, Billing, Technical Support, Cancellation, Account Issue"}
+  const systemPrompt = `You are the official AI customer support agent for ${brandName}.
+Your job is to analyze incoming customer messages in the context of the ongoing conversation, identify the intent, use historical support conversations as evidence, draft a grounded response, and decide whether to handle automatically (AUTO_HANDLE) or escalate to a human agent (ESCALATE).
 
+Available Intents: ${intentNames.length > 0 ? intentNames.join(", ") : "Order Status & Tracking, Refund & Return, Technical Support, Account & Billing, General Inquiry"}
+
+${conversationThreadText}
 Historical Support Evidence:
 ${evidenceContext || "No historical evidence available."}
+
+CRITICAL MULTI-TURN CONTEXT RULES:
+1. You are in an ACTIVE MULTI-TURN CONVERSATION with this customer. ALWAYS maintain full context from previous messages.
+2. If you previously asked the customer for an order number, tracking number, email, or details, and the customer now provides it (e.g. '1234'), RECOGNIZE that '1234' is their order number for their earlier query!
+3. Resolve their original inquiry directly (e.g. confirm order #1234 is processed and provide delivery estimate) rather than asking what '1234' means.
+4. Keep replies helpful, polite, concise, and grounded in the historical evidence precedents.
 
 Respond strictly in valid JSON with no extra commentary:
 {
   "intent": "EXACT_INTENT_NAME",
-  "draft_reply": "Customer-facing response grounded in evidence",
+  "draft_reply": "Customer-facing response grounded in evidence and dialogue context",
   "escalation": "AUTO_HANDLE or ESCALATE",
   "escalation_reason": "Short reason for decision",
   "evidence_ids": ["message_id_1"]
@@ -101,9 +136,19 @@ Respond strictly in valid JSON with no extra commentary:
     evidence_ids?: string[];
   } = {};
 
+  const groqHistory = history.map((h) => ({
+    role: (h.role === "CUSTOMER" || h.role === "USER" ? "user" : "assistant") as "user" | "assistant",
+    content: h.text,
+  }));
+
   try {
     if (env.GROQ_API_KEY || process.env.GROQ_API_KEY) {
-      const rawOutput = await runGroqModel(inputText, systemPrompt, modelName);
+      const rawOutput = await runGroqModel(
+        inputText,
+        systemPrompt,
+        modelName,
+        groqHistory,
+      );
       const cleaned = rawOutput.replace(/```json/gi, "").replace(/```/g, "").trim();
       parsedResponse = JSON.parse(cleaned);
     } else {

@@ -351,7 +351,7 @@ export function SupportDashboard({ user }: SupportDashboardProps) {
                     ⚡ Grounded Customer AI
                   </span>
                   <span className="font-mono text-xs opacity-75">
-                    OpenRouter + Pinecone
+                    Groq + Pinecone
                   </span>
                 </div>
                 <h3 className="mt-3 text-xl font-bold tracking-tight">

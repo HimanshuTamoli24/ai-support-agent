@@ -1,5 +1,5 @@
 import { tool } from "@openrouter/agent";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 export const weatherTool = tool({
   name: "get_weather",

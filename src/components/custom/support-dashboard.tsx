@@ -14,9 +14,9 @@ import {
   DropdownMenuSeparator,
 } from "~/components/ui/dropdown-menu";
 import { DatasetUploader } from "./dataset-uploader";
-import { AgentTester } from "./agent-tester";
 import { EvaluationBenchmark } from "./evaluation-benchmark";
 import { RecentRuns } from "./recent-runs";
+import { PublicChatView } from "./public-chat-view";
 
 export interface SupportDashboardProps {
   user?: {
@@ -29,12 +29,13 @@ export interface SupportDashboardProps {
 export function SupportDashboard({ user }: SupportDashboardProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<
-    "overview" | "tester" | "benchmark" | "uploader" | "history"
+    "overview" | "chat" | "benchmark" | "uploader" | "history"
   >("overview");
   const [testQuery, setTestQuery] = useState(
     "My iPhone battery is draining 50% faster after update.",
   );
   const [copiedBrandId, setCopiedBrandId] = useState<string | null>(null);
+  const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
@@ -49,6 +50,8 @@ export function SupportDashboard({ user }: SupportDashboardProps) {
     api.agent.getStats.useQuery();
   const { data: brands } = api.agent.getBrands.useQuery();
   const { data: recentRuns } = api.agent.getRecentRuns.useQuery({ limit: 4 });
+
+  const activeChatBrandId = selectedBrandId ?? brands?.[0]?.id ?? "";
 
   const runAgentMutation = api.agent.runAgent.useMutation({
     onSuccess: () => {
@@ -88,21 +91,32 @@ export function SupportDashboard({ user }: SupportDashboardProps) {
             }`}
           >
             <span>⚡</span>
-            <span className="hidden sm:inline">Bento Overview</span>
+            <span className="hidden sm:inline">Overview</span>
           </button>
 
           <button
             type="button"
-            title="AI Sandbox"
-            onClick={() => setActiveTab("tester")}
+            title="Live Customer Chat"
+            onClick={() => setActiveTab("chat")}
             className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 sm:px-3.5 text-xs font-semibold transition ${
-              activeTab === "tester"
+              activeTab === "chat"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             }`}
           >
-            <span>🔍</span>
-            <span className="hidden sm:inline">AI Sandbox</span>
+            <span>🌐</span>
+            <span className="hidden sm:inline">Live Customer Chat</span>
+            {brands && brands.length > 0 && (
+              <span
+                className={`ml-1 rounded-full px-1.5 py-0.2 text-[9px] font-bold ${
+                  activeTab === "chat"
+                    ? "bg-white/20 text-white"
+                    : "bg-blue-50 text-blue-700"
+                }`}
+              >
+                {brands.length}
+              </span>
+            )}
           </button>
 
           <button
@@ -248,96 +262,143 @@ export function SupportDashboard({ user }: SupportDashboardProps) {
       {/* Main Bento Grid View */}
       {activeTab === "overview" && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-          {/* Left Column: System Summary Card (like 'The old way' sidebar in photo) */}
+          {/* Left Column: Live Customer Portals & System Summary */}
           <div className="flex flex-col justify-between space-y-5 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm lg:col-span-4">
             <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
-                  SYSTEM STATUS
-                </span>
-                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600">
-                  ACTIVE
-                </span>
-              </div>
-
-              <div className="mt-4">
-                <p className="text-3xl font-extrabold text-slate-900">
-                  {isStatsLoading
-                    ? "..."
-                    : (stats?.messages ?? 0).toLocaleString()}
-                </p>
-                <p className="mt-0.5 text-xs text-slate-500">
-                  Precedent vectors indexed in Pinecone
-                </p>
-              </div>
-
-              {/* Status List Box */}
-              <div className="mt-5 space-y-2.5 rounded-2xl border border-slate-100 bg-slate-50 p-3.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500">Indexed Brands:</span>
-                  <span className="font-bold text-slate-800">
-                    {stats?.brands ?? 0}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500">Indexed Conversations:</span>
-                  <span className="font-bold text-slate-800">
-                    {stats?.conversations ?? 0}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500">Total Agent Runs:</span>
-                  <span className="font-bold text-blue-600">
-                    {stats?.agentRuns ?? 0}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Public Portals Shortcuts */}
-            <div className="space-y-2 border-t border-slate-100 pt-4">
-              <span className="text-xs font-bold text-slate-800">
-                🌐 Live Customer Portals
-              </span>
-              {brands && brands.length > 0 ? (
-                <div className="space-y-2">
-                  {brands.slice(0, 2).map((b) => (
-                    <div
-                      key={b.id}
-                      className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 p-2.5"
+              {/* TOP SECTION: Live Customer Portals */}
+              <div className="space-y-3 pb-4 border-b border-slate-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+                    <span className="text-xs font-bold text-slate-900">
+                      🌐 Live Customer Portals
+                    </span>
+                  </div>
+                  {brands && brands.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedBrandId(brands[0]?.id ?? null);
+                        setActiveTab("chat");
+                      }}
+                      className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline"
                     >
-                      <div>
-                        <p className="text-xs font-bold text-slate-800">
-                          {b.name}
-                        </p>
-                        <p className="font-mono text-[10px] text-slate-400">
-                          /{b.id}/chat
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Link
-                          href={`/${b.id}/chat`}
-                          target="_blank"
-                          className="rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-blue-500"
-                        >
-                          Open ↗
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleCopyLink(b.id)}
-                          className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-600 hover:bg-slate-50"
-                        >
-                          {copiedBrandId === b.id ? "✓" : "Copy"}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                      Open in App →
+                    </button>
+                  )}
                 </div>
-              ) : (
-                <p className="text-xs text-slate-400">
-                  No brands ingested yet.
-                </p>
-              )}
+
+                {brands && brands.length > 0 ? (
+                  <div className="space-y-2">
+                    {brands.slice(0, 3).map((b) => (
+                      <div
+                        key={b.id}
+                        className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/80 p-2.5 transition hover:border-blue-200 hover:bg-blue-50/30"
+                      >
+                        <div className="min-w-0 flex-1 pr-2">
+                          <div className="flex items-center gap-1.5">
+                            <div className="flex h-5 w-5 items-center justify-center rounded-md bg-blue-600 text-[10px] font-bold text-white shadow-2xs">
+                              {b.name[0]?.toUpperCase() ?? "B"}
+                            </div>
+                            <p className="truncate text-xs font-bold text-slate-800">
+                              {b.name}
+                            </p>
+                          </div>
+                          <p className="truncate font-mono text-[10px] text-slate-400 mt-0.5">
+                            /{b.id}/chat
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedBrandId(b.id);
+                              setActiveTab("chat");
+                            }}
+                            className="rounded-lg bg-blue-600 px-2 py-1 text-[11px] font-semibold text-white shadow-2xs transition hover:bg-blue-500"
+                          >
+                            Chat
+                          </button>
+                          <Link
+                            href={`/${b.id}/chat`}
+                            target="_blank"
+                            title="Open full page in new tab"
+                            className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
+                          >
+                            ↗
+                          </Link>
+                          <button
+                            type="button"
+                            title="Copy link to clipboard"
+                            onClick={() => handleCopyLink(b.id)}
+                            className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-600 hover:bg-slate-50"
+                          >
+                            {copiedBrandId === b.id ? "✓" : "Copy"}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 p-3.5 text-center">
+                    <p className="text-xs font-medium text-slate-600">
+                      No customer brand portals active yet.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("uploader")}
+                      className="mt-2 text-xs font-bold text-blue-600 hover:underline"
+                    >
+                      + Ingest Dataset to Create Brand
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* BOTTOM SECTION: System Status */}
+              <div className="mt-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+                    SYSTEM STATUS
+                  </span>
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600">
+                    ACTIVE
+                  </span>
+                </div>
+
+                <div className="mt-3">
+                  <p className="text-3xl font-extrabold text-slate-900">
+                    {isStatsLoading
+                      ? "..."
+                      : (stats?.messages ?? 0).toLocaleString()}
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    Precedent vectors indexed in Pinecone
+                  </p>
+                </div>
+
+                {/* Status List Box */}
+                <div className="mt-4 space-y-2.5 rounded-2xl border border-slate-100 bg-slate-50 p-3.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-500">Indexed Brands:</span>
+                    <span className="font-bold text-slate-800">
+                      {stats?.brands ?? 0}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-500">Indexed Conversations:</span>
+                    <span className="font-bold text-slate-800">
+                      {stats?.conversations ?? 0}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-500">Total Agent Runs:</span>
+                    <span className="font-bold text-blue-600">
+                      {stats?.agentRuns ?? 0}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -367,10 +428,10 @@ export function SupportDashboard({ user }: SupportDashboardProps) {
               <div className="mt-4 flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("tester")}
+                  onClick={() => setActiveTab("chat")}
                   className="rounded-full bg-white px-4 py-1.5 text-xs font-bold text-blue-600 shadow-sm transition hover:bg-blue-50"
                 >
-                  Open Sandbox →
+                  Live Customer Chat →
                 </button>
                 <button
                   type="button"
@@ -386,7 +447,7 @@ export function SupportDashboard({ user }: SupportDashboardProps) {
             <div className="space-y-3 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800">
-                  💬 Live Query Sandbox
+                  💬 Instant Query Test
                 </span>
                 <span className="text-[10px] font-medium text-slate-400">
                   Instant Execution
@@ -540,11 +601,80 @@ export function SupportDashboard({ user }: SupportDashboardProps) {
       )}
 
       {/* Tab Panels */}
-      {activeTab === "tester" && (
-        <AgentTester
-          onRunSuccess={() => utils.agent.getRecentRuns.invalidate()}
-        />
+      {activeTab === "chat" && (
+        <div className="space-y-3">
+          {/* Brand Switcher Bar if multiple brands exist */}
+          {brands && brands.length > 0 ? (
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200/80 bg-white p-2.5 shadow-2xs">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[11px] font-bold text-slate-400 px-2 uppercase tracking-wider">
+                    Select Brand:
+                  </span>
+                  {brands.map((b) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onClick={() => setSelectedBrandId(b.id)}
+                      className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+                        activeChatBrandId === b.id
+                          ? "bg-blue-600 text-white shadow-xs"
+                          : "bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/60"
+                      }`}
+                    >
+                      <span className="flex h-4 w-4 items-center justify-center rounded bg-white/20 text-[9px] font-bold">
+                        {b.name[0]?.toUpperCase() ?? "B"}
+                      </span>
+                      <span>{b.name}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/${activeChatBrandId}/chat`}
+                    target="_blank"
+                    className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
+                  >
+                    <span>Full Window</span>
+                    <span className="text-[10px]">↗</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyLink(activeChatBrandId)}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+                  >
+                    {copiedBrandId === activeChatBrandId ? "✓ Copied" : "Copy Link"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Embedded Interactive Customer Chat */}
+              <PublicChatView brandId={activeChatBrandId} embedded={true} />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-sm">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-2xl">
+                🌐
+              </div>
+              <h3 className="mt-4 text-base font-bold text-slate-900">
+                No Customer Support Portals Available
+              </h3>
+              <p className="mt-1 max-w-sm text-xs text-slate-500">
+                Upload or ingest a conversational ticket dataset to automatically create brand support agents and customer-facing chat portals.
+              </p>
+              <button
+                type="button"
+                onClick={() => setActiveTab("uploader")}
+                className="mt-5 rounded-full bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-blue-500"
+              >
+                📥 Go to Ingest Dataset
+              </button>
+            </div>
+          )}
+        </div>
       )}
+
       {activeTab === "benchmark" && <EvaluationBenchmark />}
       {activeTab === "uploader" && (
         <DatasetUploader

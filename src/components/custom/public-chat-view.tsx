@@ -22,7 +22,13 @@ interface ChatMessage {
   latencyMs?: number;
 }
 
-export function PublicChatView({ brandId }: { brandId: string }) {
+export function PublicChatView({
+  brandId,
+  embedded = false,
+}: {
+  brandId: string;
+  embedded?: boolean;
+}) {
   const [inputMessage, setInputMessage] = useState("");
   const [conversationId, setConversationId] = useState<string | undefined>(
     undefined,
@@ -137,17 +143,30 @@ export function PublicChatView({ brandId }: { brandId: string }) {
   }
 
   return (
-    <div className="flex h-screen w-full flex-col bg-[#F4F6FB] text-slate-900">
+    <div
+      className={`flex w-full flex-col text-slate-900 ${
+        embedded
+          ? "h-[680px] rounded-3xl border border-slate-200/80 bg-white shadow-sm overflow-hidden"
+          : "min-h-screen h-screen bg-[#F4F6FB]"
+      }`}
+    >
       {/* Header */}
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200/80 bg-white/90 px-6 py-3 backdrop-blur-md">
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200/80 bg-white/95 px-5 py-3 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-sm">
             {brand.name[0]?.toUpperCase() ?? "B"}
           </div>
           <div>
-            <h1 className="text-sm font-bold text-slate-900 sm:text-base">
-              {brand.name} Support Agent
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-sm font-bold text-slate-900 sm:text-base">
+                {brand.name} Support Agent
+              </h1>
+              {embedded && (
+                <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-600">
+                  Live Portal
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-1.5">
               <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
               <span className="text-[11px] text-slate-500">
@@ -157,12 +176,23 @@ export function PublicChatView({ brandId }: { brandId: string }) {
           </div>
         </div>
 
-        <Link
-          href="/"
-          className="rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-        >
-          ← Dashboard
-        </Link>
+        {embedded ? (
+          <Link
+            href={`/${brandId}/chat`}
+            target="_blank"
+            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600 shadow-2xs"
+          >
+            <span>Open Fullscreen</span>
+            <span className="text-[10px]">↗</span>
+          </Link>
+        ) : (
+          <Link
+            href="/"
+            className="rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+          >
+            ← Dashboard
+          </Link>
+        )}
       </header>
 
       {/* Chat Messages Body */}

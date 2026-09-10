@@ -3,7 +3,7 @@ import {
   querySimilarEvidence,
   type RetrievedEvidence,
 } from "~/server/pinecone/client";
-import { runOpenRouterModel } from "~/server/open-router/client";
+import { runGroqModel, DEFAULT_GROQ_MODEL } from "~/server/groq/client";
 import { env } from "~/env";
 
 export interface RunAgentInput {
@@ -35,7 +35,7 @@ export interface AgentRunOutput {
 }
 
 /**
- * Execute AI Customer Support Agent with Pinecone retrieval evidence and OpenRouter reasoning.
+ * Execute AI Customer Support Agent with Pinecone retrieval evidence and Groq reasoning.
  */
 export async function runSupportAgent({
   inputText,
@@ -43,7 +43,7 @@ export async function runSupportAgent({
   brandId,
   conversationId,
   evaluationExampleId,
-  modelName = "openrouter/free",
+  modelName = DEFAULT_GROQ_MODEL,
 }: RunAgentInput): Promise<AgentRunOutput> {
   const startTime = Date.now();
 
@@ -102,8 +102,8 @@ Respond strictly in valid JSON with no extra commentary:
   } = {};
 
   try {
-    if (env.OPENROUTER_API_KEY) {
-      const rawOutput = await runOpenRouterModel(inputText, systemPrompt);
+    if (env.GROQ_API_KEY || process.env.GROQ_API_KEY) {
+      const rawOutput = await runGroqModel(inputText, systemPrompt, modelName);
       const cleaned = rawOutput.replace(/```json/gi, "").replace(/```/g, "").trim();
       parsedResponse = JSON.parse(cleaned);
     } else {

@@ -118,7 +118,7 @@ export const agentRouter = createTRPCRouter({
       });
     }),
 
-  // 5. Run AI Support Agent with Pinecone evidence & OpenRouter reasoning
+  // 5. Run AI Support Agent with Pinecone evidence & Groq reasoning
   runAgent: publicProcedure
     .input(
       z.object({

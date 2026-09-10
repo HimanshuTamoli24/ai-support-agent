@@ -1,5 +1,5 @@
 import { db } from "~/server/db";
-import { runOpenRouterModel } from "~/server/open-router/client";
+import { runGroqModel, DEFAULT_GROQ_MODEL } from "~/server/groq/client";
 import { querySimilarEvidence } from "~/server/pinecone/client";
 import { env } from "~/env";
 
@@ -430,7 +430,7 @@ export async function evaluateZeroShotLLM(
 ): Promise<SystemPrediction> {
   const start = Date.now();
 
-  if (!env.OPENROUTER_API_KEY && useMockIfNoKey) {
+  if (!env.GROQ_API_KEY && !process.env.GROQ_API_KEY && useMockIfNoKey) {
     const isHard = example.category === "HARD" || example.category === "ADVERSARIAL";
     const shouldEscalate = isHard ? Math.random() > 0.35 : Math.random() < 0.15;
     const rand = Math.random();
@@ -459,7 +459,7 @@ Respond strictly in JSON format:
 }`;
 
   try {
-    const raw = await runOpenRouterModel(example.text, systemPrompt);
+    const raw = await runGroqModel(example.text, systemPrompt);
     const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
     const parsed = JSON.parse(cleaned);
 
@@ -484,7 +484,7 @@ Respond strictly in JSON format:
   }
 }
 
-// System under test: Proposed Evidence-Grounded Agent (Pinecone + OpenRouter)
+// System under test: Proposed Evidence-Grounded Agent (Pinecone + Groq)
 export async function evaluateProposedAgent(
   example: GoldenExample,
   datasetId?: string,
@@ -504,7 +504,7 @@ export async function evaluateProposedAgent(
     evidenceIds = ["msg-prec-1", "msg-prec-2"];
   }
 
-  if (!env.OPENROUTER_API_KEY && useMockIfNoKey) {
+  if (!env.GROQ_API_KEY && !process.env.GROQ_API_KEY && useMockIfNoKey) {
     const shouldEscalate = example.expectedEscalation;
     const predictedIntent = example.expectedIntent;
     const factsStr = example.expectedKeyFacts.join(", ");
@@ -535,7 +535,7 @@ Respond strictly in JSON:
 }`;
 
   try {
-    const raw = await runOpenRouterModel(example.text, systemPrompt);
+    const raw = await runGroqModel(example.text, systemPrompt);
     const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
     const parsed = JSON.parse(cleaned);
 

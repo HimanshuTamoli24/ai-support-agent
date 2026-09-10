@@ -9,6 +9,7 @@ import { runFullBenchmarkSuite } from "~/server/services/evaluation-service";
 import { querySimilarEvidence } from "~/server/pinecone/client";
 import { inngest } from "~/server/inngest/client";
 import { db } from "~/server/db";
+import { env } from "~/env";
 
 export const agentRouter = createTRPCRouter({
   // 1. Upload Dataset: Stores raw JSON in PostgreSQL & triggers Inngest background indexing
@@ -57,7 +58,7 @@ export const agentRouter = createTRPCRouter({
 
       // Step 2: Try dispatching Inngest event; if event key missing in production, fallback to direct ingestion
       try {
-        if (process.env.INNGEST_EVENT_KEY || process.env.NODE_ENV !== "production") {
+        if (env.INNGEST_EVENT_KEY || env.NODE_ENV !== "production") {
           await inngest.send({
             name: "support/user.data.upload",
             data: {
@@ -253,12 +254,13 @@ export const agentRouter = createTRPCRouter({
   // 8. Run Scientific Evaluation Benchmark Suite
   runBenchmark: publicProcedure
     .input(
-      z.object({
-        datasetId: z.string().optional(),
-      }).optional(),
+      z
+        .object({
+          datasetId: z.string().optional(),
+        })
+        .optional(),
     )
     .mutation(async ({ input }) => {
       return runFullBenchmarkSuite(input?.datasetId);
     }),
 });
-
